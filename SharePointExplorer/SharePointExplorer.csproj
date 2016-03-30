@@ -123,7 +123,6 @@
     <Compile Include="Models\FileCacheManager.cs" />
     <Compile Include="Models\DummyItem.cs" />
     <Compile Include="Models\ExplorerVM.cs" />
-    <Compile Include="Models\LicenseVM.cs" />
     <Compile Include="Models\login.cs" />
     <Compile Include="Models\ManagedIStream.cs" />
     <Compile Include="Models\NativeMethods.cs" />
@@ -148,9 +147,6 @@
     </Compile>
     <Compile Include="Views\ExplorerView.xaml.cs">
       <DependentUpon>ExplorerView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\LicenseView.xaml.cs">
-      <DependentUpon>LicenseView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PercentageConverter.cs" />
     <Compile Include="SharePointUtil.cs" />
@@ -190,10 +186,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\FolderPanelView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\LicenseView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

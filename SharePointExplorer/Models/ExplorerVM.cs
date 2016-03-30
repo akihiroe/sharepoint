@@ -47,18 +47,6 @@ namespace SharePointExplorer.Models
                     ExplorerSettings.Instance.StartDate = DateTime.Now;
                     ExplorerSettings.Instance.Save();
                 }
-                if (ExplorerSettings.Instance.StartDate.Value.AddDays(90) <= DateTime.Now)
-                {
-                    var licenceVM = new LicenseVM();
-                    ShowDialog(licenceVM, Properties.Resources.MsgLicenseKey);
-                    if (!licenceVM.DialogResult)
-                    {
-                        Application.Current.Shutdown();
-                        return;
-                    }
-                    ExplorerSettings.Instance.LicenseKey = licenceVM.LicenseKey;
-                    ExplorerSettings.Instance.Save();
-                }
             }
             AppViewModel.TopViewModelInstance = this;
             Children = new ObservableCollection<SPTreeItem>();
