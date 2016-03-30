@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharePointExplorer", "Share
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharePointExplorer.Tests", "SharePointExplorer.Tests\SharePointExplorer.Tests.csproj", "{B2A2E357-8444-4867-848D-8287A168C4A5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Readme", "Readme", "{02420C51-7FAE-4D56-A639-741AB785A6E7}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+		sharepointexplorer.png = sharepointexplorer.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,17 +30,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 3
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://akihiroe.visualstudio.com/defaultcollection
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = SharePointExplorer.Tests\\SharePointExplorer.Tests.csproj
-		SccProjectName1 = SharePointExplorer.Tests
-		SccLocalPath1 = SharePointExplorer.Tests
-		SccProjectUniqueName2 = SharePointExplorer\\SharePointExplorer.csproj
-		SccProjectName2 = SharePointExplorer
-		SccLocalPath2 = SharePointExplorer
 	EndGlobalSection
 EndGlobal
