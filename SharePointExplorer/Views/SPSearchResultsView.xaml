@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="SharePointExplorer.Views.SPSearchResultsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SharePointExplorer.Views"
+             xmlns:properties="clr-namespace:SharePointExplorer.Properties"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch">
+        <Grid>
+            <StackPanel Name="ConnectVMButtonPanel" Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="0" Grid.Column="0">
+                <Button Name="CloseCommand" HorizontalAlignment="Right" IsCancel="True" Command="{Binding Path=CloseCommand,Mode=OneWay}" Margin="5" Content="{x:Static properties:Resources.MsgClose}"></Button>
+            </StackPanel>
+
+            <ItemsControl ItemsSource="{Binding Path=Items,Mode=OneWay}" VerticalAlignment="Stretch" Grid.Row="1" Grid.Column="0">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="10">
+                                <TextBlock FontSize="18" ><Hyperlink NavigateUri="{Binding Path}" Command="{Binding OpenCommand}"><Run Text="{Binding Path=Name,Mode=OneWay}"></Run></Hyperlink></TextBlock>
+                                <TextBox Background="Transparent" BorderThickness="0" Text="{Binding Path, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" />
+                                <ContentControl Margin="10" Content="{Binding Path=ResultTextBlock}" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" />
+                            </StackPanel>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

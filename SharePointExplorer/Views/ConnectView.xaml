@@ -1,0 +1,62 @@
+﻿<UserControl x:Class="SharePointExplorer.Views.ConnectView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SharePointExplorer.Views"
+             xmlns:properties="clr-namespace:SharePointExplorer.Properties"
+             mc:Ignorable="d" 
+            FontSize="16"
+             Width="600" Height="150" >
+    <Grid>
+        <ContentControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:system="clr-namespace:System;assembly=mscorlib" IsTabStop="False">
+            <ContentControl.Resources>
+                <ResourceDictionary>
+                    <ResourceDictionary.MergedDictionaries>
+                        <ResourceDictionary Source="/ViewMaker.Core;component/wpf/wpfgenericresource.xaml" />
+                        <ResourceDictionary Source="/ViewMaker.Core;component/wpf/wpferrorstyleresource.xaml" />
+                    </ResourceDictionary.MergedDictionaries>
+                </ResourceDictionary>
+            </ContentControl.Resources>
+            <Grid Name="ConnectVM" DataContext="{Binding Mode=OneWay}">
+                <StackPanel Name="ConnectVMDataPanel" Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="0" Grid.Column="0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Width="150" HorizontalContentAlignment="Right" VerticalAlignment="Center" Content="{x:Static properties:Resources.MsgSiteUrl}"></Label>
+                        <TextBox Name="SiteUrl" Text="{Binding Path=SiteUrl, Mode=TwoWay, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, NotifyOnValidationError=True }" VerticalAlignment="Center" Grid.Column="1" />
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Width="150" HorizontalContentAlignment="Right" VerticalAlignment="Center" Content="{x:Static properties:Resources.MsgUser}"></Label>
+                        <TextBox Name="User" Text="{Binding Path=User, Mode=TwoWay, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, NotifyOnValidationError=True }" VerticalAlignment="Center" Grid.Column="1" />
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Width="150" HorizontalContentAlignment="Right" VerticalAlignment="Center" Content="{x:Static properties:Resources.MsgPassword}"></Label>
+                        <PasswordBox Name="Password" VerticalAlignment="Center" Grid.Column="1" />
+                    </Grid>
+                </StackPanel>
+                <StackPanel Name="ConnectVMButtonPanel" Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column="0">
+                    <Button Name="ConnectCommand" IsDefault="True" Command="{Binding Path=ConnectCommand,Mode=OneWay}" CommandParameter="{Binding ElementName=Password}" Margin="5" Content="{x:Static properties:Resources.MsgConnect}"></Button>
+                    <Button Name="CloseCommand" IsCancel="True" Command="{Binding Path=CloseCommand,Mode=OneWay}" Margin="5" Content="{x:Static properties:Resources.MsgClose}"></Button>
+                </StackPanel>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+            </Grid>
+        </ContentControl>
+    </Grid>
+</UserControl>
