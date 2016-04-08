@@ -75,7 +75,7 @@ namespace SharePointExplorer.Models
 
         private async Task Open(object obj)
         {
-            var relativePath = Path.Substring(SiteName.Length);
+            var relativePath = new Uri(Path).AbsolutePath;
             await Task.Run(() => {
                 var pathUser = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
                 var pathDownload = System.IO.Path.Combine(pathUser, "Downloads", relativePath.Split('/').Last());
@@ -94,5 +94,14 @@ namespace SharePointExplorer.Models
             });
 
         }
+
+        public override string SPUrl
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
     }
 }

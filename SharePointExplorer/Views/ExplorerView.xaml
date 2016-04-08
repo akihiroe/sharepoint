@@ -26,7 +26,7 @@
 
                 <MenuItem Header="{x:Static properties:Resources.MsgFile}">
                     <MenuItem Header="{x:Static properties:Resources.MsgConnect}" Name="ConnectCommand" Command="{Binding Path=ConnectCommand,Mode=OneWay}" />
-                    <MenuItem Header="{x:Static properties:Resources.MsgExit}" Name="ExitCommand" Command="{Binding Path=ExitCommand,Mode=OneWay}" />                    
+                    <MenuItem Header="{x:Static properties:Resources.MsgExit}" Name="ExitCommand" Command="{Binding Path=ExitCommand,Mode=OneWay}" />
                 </MenuItem>
                 <MenuItem Header="{x:Static properties:Resources.MsgFormat}">
                     <MenuItem Header="{x:Static properties:Resources.MsgDateFormat}" ItemsSource="{Binding DataFormats}" >
@@ -43,11 +43,16 @@
                     <MenuItem.Header>
                         <Grid Width="300">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <Label Content="{x:Static properties:Resources.MsgSearch}" Margin="0,3,6,0" Padding="0" />
-                            <TextBox Margin="0,0,0,6" Grid.Column="1" KeyDown="TextBox_KeyDown"  />
+                            <TextBox Name="QueryText" Margin="0,0,0,6" Grid.Column="0" KeyDown="TextBox_KeyDown"  />
+                            <Menu Grid.Column="1" FontSize="16">
+                                <MenuItem Header="{x:Static properties:Resources.MsgSearch}">
+                                    <MenuItem Header="{x:Static properties:Resources.MsgSearchModeFolder}"  Command="{Binding Path=SearchCommand,Mode=OneWay}" CommandParameter="{Binding ElementName=QueryText, Path=Text}" />
+                                    <MenuItem Header="{x:Static properties:Resources.MsgSeacrhModeAll}"  Command="{Binding SearchAllCommand,Mode=OneWay}" CommandParameter="{Binding ElementName=QueryText, Path=Text}" />
+                                </MenuItem>
+                            </Menu>
                         </Grid>
                     </MenuItem.Header>
                 </MenuItem>

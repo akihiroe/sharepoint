@@ -42,8 +42,8 @@ namespace SharePointExplorer.Tests
         public void SearchCommandTest()
         {
             testVm.SelectedItem = testLib;
-            testVm.SearchCommand.Execute("cloud");
-            var searchVM = testSite.Children.Where(x => x.Name == Properties.Resources.MsgSearchResults).FirstOrDefault() as SPSearchResultsItem;
+            testVm.SearchCommand.Execute("test");
+            var searchVM = testVm.Children.Where(x => x.Name == Properties.Resources.MsgSearchResults).FirstOrDefault() as SPSearchResultsItem;
             Assert.IsNotNull(searchVM);
             Assert.IsTrue(searchVM.Items.Count > 0);
         }

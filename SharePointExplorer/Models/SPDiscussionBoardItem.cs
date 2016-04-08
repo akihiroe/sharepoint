@@ -88,5 +88,12 @@ namespace SharePointExplorer.Models
             this.CurrentContent = ViewUtil.BuildContent(SelectedItem);
         }
 
+        public override string SPUrl
+        {
+            get
+            {
+                return Context.Url + "/" + List.Title;
+            }
+        }
     }
 }

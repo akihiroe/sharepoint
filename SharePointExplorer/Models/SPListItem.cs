@@ -33,5 +33,14 @@ namespace SharePointExplorer.Models
         {
             this._item = item;
         }
+
+        public override string SPUrl
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
     }
 }

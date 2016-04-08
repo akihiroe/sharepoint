@@ -213,11 +213,17 @@
   <data name="MsgFormat" xml:space="preserve">
     <value>書式</value>
   </data>
+  <data name="MsgInvalidMoveTargetFolder" xml:space="preserve">
+    <value>移動先のフォルダの指定が不正です</value>
+  </data>
   <data name="MsgLicenseKey" xml:space="preserve">
     <value>ライセンスキーの登録</value>
   </data>
   <data name="MsgModifiedDate" xml:space="preserve">
     <value>変更日</value>
+  </data>
+  <data name="MsgMove" xml:space="preserve">
+    <value>移動</value>
   </data>
   <data name="MsgMultiDeleteConfirm" xml:space="preserve">
     <value>{0} 個のファイルを削除してよろしいですか?</value>
@@ -258,8 +264,17 @@
   <data name="MsgSave" xml:space="preserve">
     <value>保存</value>
   </data>
+  <data name="MsgSeacrhModeAll" xml:space="preserve">
+    <value>全体</value>
+  </data>
   <data name="MsgSearch" xml:space="preserve">
     <value>検索</value>
+  </data>
+  <data name="MsgSearchMode" xml:space="preserve">
+    <value>検索モード</value>
+  </data>
+  <data name="MsgSearchModeFolder" xml:space="preserve">
+    <value>フォルダ</value>
   </data>
   <data name="MsgSearchNotFound" xml:space="preserve">
     <value>{0}　は見つかりませんでした</value>
@@ -276,8 +291,14 @@
   <data name="MsgSize" xml:space="preserve">
     <value>サイズ</value>
   </data>
+  <data name="MsgTargetFolder" xml:space="preserve">
+    <value>移動先URL</value>
+  </data>
   <data name="MsgUpload" xml:space="preserve">
     <value>アップロード</value>
+  </data>
+  <data name="MsgUploading" xml:space="preserve">
+    <value>{0} アップロード中</value>
   </data>
   <data name="MsgUser" xml:space="preserve">
     <value>ユーザ</value>

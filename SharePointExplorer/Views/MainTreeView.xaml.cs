@@ -1,7 +1,10 @@
 ﻿using SharePointExplorer.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -56,6 +59,94 @@ namespace SharePointExplorer.Views
                 text.Focus();
                 text.Select(0, 0);
             }
+        }
+
+        private void Folders_Drop(object sender, DragEventArgs e)
+        {
+            var item = FindAnchestor<TreeViewItem>(e.OriginalSource as DependencyObject);
+            if (item == null) return;
+            var vm = item.DataContext as SPFolderItem;
+            if (vm == null) return;
+
+            string[] files = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (files != null)
+            {
+                vm.UploadCommand.Execute(files);
+            }
+            var folder = e.Data.GetData(DataFormats.StringFormat) as string;
+            if (folder != null)
+            {
+                vm.MoveFolderCommand.Execute(new string[] { folder });
+            }
+            var data = e.Data as IDataObject;
+            if (data != null)
+            {
+                var st = data.GetData(DataFormats.Serializable) as MemoryStream;
+                if (st != null)
+                {
+                    BinaryFormatter bin = new BinaryFormatter();
+                    files = (string[])bin.Deserialize(st);
+                    vm.MoveFolderCommand.Execute(files);
+                }
+            }
+        }
+
+        private static T FindAnchestor<T>(DependencyObject current)
+            where T : DependencyObject
+        {
+            do
+            {
+                if (current is T)
+                {
+                    return (T)current;
+                }
+                current = VisualTreeHelper.GetParent(current);
+            }
+            while (current != null);
+            return null;
+        }
+
+        private Point _foldersOrigin;
+        private bool _isFoldersButtonDown;
+
+        private void Folders_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _foldersOrigin = e.GetPosition(this);
+            _isFoldersButtonDown = true;
+        }
+
+        private void Folders_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            _isFoldersButtonDown = false;
+        }
+
+        private void Folders_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton != MouseButtonState.Pressed || !_isFoldersButtonDown)
+            {
+                return;
+            }
+            var point = e.GetPosition(this);
+            if (CheckDistance(point, _foldersOrigin))
+            {
+                if (_isFoldersButtonDown)
+                {
+                    var item = Folders.SelectedItem as SPFolderItem;
+                    if (item != null)
+                    {
+                        DragDrop.DoDragDrop(sender as DependencyObject, item.SPUrl, DragDropEffects.Move);
+                    }
+                    _isFoldersButtonDown = false;
+                }
+
+                e.Handled = true;
+            }
+        }
+
+        private bool CheckDistance(Point x, Point y)
+        {
+            return Math.Abs(x.X - y.X) >= SystemParameters.MinimumHorizontalDragDistance ||
+                Math.Abs(x.Y - y.Y) >= SystemParameters.MinimumVerticalDragDistance;
         }
     }
 }

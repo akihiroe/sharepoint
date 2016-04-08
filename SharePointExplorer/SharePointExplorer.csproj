@@ -20,7 +20,7 @@
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
-    <PublishUrl>publish\</PublishUrl>
+    <PublishUrl>C:\Cloud Storage Light\deploy\website\sharepointexplorer\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -35,7 +35,7 @@
     <PublisherName>proaxia consulting</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>40</ApplicationRevision>
+    <ApplicationRevision>44</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -125,6 +125,7 @@
     <Compile Include="Models\ExplorerVM.cs" />
     <Compile Include="Models\login.cs" />
     <Compile Include="Models\ManagedIStream.cs" />
+    <Compile Include="Models\MoveFolderVM.cs" />
     <Compile Include="Models\NativeMethods.cs" />
     <Compile Include="Models\ReadSeekableStream.cs" />
     <Compile Include="Models\SharePointContextExtension.cs" />
@@ -147,6 +148,9 @@
     </Compile>
     <Compile Include="Views\ExplorerView.xaml.cs">
       <DependentUpon>ExplorerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MoveFolderView.xaml.cs">
+      <DependentUpon>MoveFolderView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PercentageConverter.cs" />
     <Compile Include="SharePointUtil.cs" />
@@ -194,6 +198,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MainTreeView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MoveFolderView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

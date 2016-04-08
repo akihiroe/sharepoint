@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -44,7 +45,7 @@ namespace SharePointExplorer.Models
 
         public ObservableCollection<SPFileItem> Items { get; private set; }
 
-        public virtual string SPUrl
+        public override string SPUrl
         {
             get
             {
@@ -189,27 +190,38 @@ namespace SharePointExplorer.Models
             foreach (var file in files)
             {
                 if (IsCancelled) break;
-                var path = Folder.ServerRelativeUrl +  "/" + System.IO.Path.GetFileName(file);
-                var info = new FileInfo(file);
-
-                var fileChild = this.Items.Where(x => x.Path == path).FirstOrDefault();
-                if (fileChild != null)
-                {
-                    var cache = FileCache.GetCachedFile(fileChild.Id);
-                    if (cache == null) FileCache.ClearCachedFile(fileChild.Id);
-                }
-
-                var overrideFile = Items.Where(x => string.Equals(x.Name, System.IO.Path.GetFileName(file), StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-
-                newFile = new SPFileItem(this, Context, null);
-                await newFile.Upload(file, path);
-                if (overrideFile != null) Items.Remove(overrideFile);
-                if (newFile.File != null)
-                {
-                    Items.Add(newFile);
-                }
-                newFile = null;
+                var path = Folder.ServerRelativeUrl + "/" + System.IO.Path.GetFileName(file);
+                await UploadSub(file, path);
             }
+        }
+
+        public async Task<SPFileItem> UploadFile(string file, string path)
+        {
+            return await UploadSub(file, path);
+        }
+
+        private async Task<SPFileItem> UploadSub(string file, string path)
+        {
+            var fileChild = this.Items.Where(x => x.Path == path).FirstOrDefault();
+            if (fileChild != null)
+            {
+                var cache = FileCache.GetCachedFile(fileChild.Id);
+                if (cache == null) FileCache.ClearCachedFile(fileChild.Id);
+            }
+
+            var overrideFile = Items.Where(x => string.Equals(x.Name, System.IO.Path.GetFileName(file), StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+
+            newFile = new SPFileItem(this, Context, null);
+            await newFile.Upload(file, path);
+            if (overrideFile != null) Items.Remove(overrideFile);
+            if (newFile.File != null)
+            {
+                Items.Add(newFile);
+            }
+            var retFile = newFile;
+            newFile = null;
+
+            return newFile;
         }
 
         public ICommand DeleteCommand
@@ -264,15 +276,15 @@ namespace SharePointExplorer.Models
         }
 
 
-        public ICommand CopyUrlToClipboardCommand
-        {
-            get { return this.CreateCommand((x) => { SelectedFile?.CopyUrlToClipboardCommand.Execute(null); OnPropertyChanged(null); }); }
-        }
+        //public ICommand CopyUrlToClipboardCommand
+        //{
+        //    get { return this.CreateCommand((x) => { SelectedFile?.CopyUrlToClipboardCommand.Execute(null); OnPropertyChanged(null); }); }
+        //}
 
-        public bool CanCopyUrlToClipboardCommand
-        {
-            get { return SelectedFile != null && SelectedFile.CanCopyUrlToClipboardCommand; }
-        }
+        //public bool CanCopyUrlToClipboardCommand
+        //{
+        //    get { return SelectedFile != null && SelectedFile.CanCopyUrlToClipboardCommand; }
+        //}
 
         public ICommand UploadCacheCommand
         {
@@ -484,7 +496,7 @@ namespace SharePointExplorer.Models
 
         //}
 
-        public System.Runtime.InteropServices.ComTypes.IDataObject CreateFilesDataObject(bool cut = false)
+        public VirtualFileDataObject CreateFilesDataObject(bool cut = false)
         {
             var virtualFileDataObject = new VirtualFileDataObject();
 
@@ -552,6 +564,15 @@ namespace SharePointExplorer.Models
 
             virtualFileDataObject.SetData(SelectedItems);
 
+
+            using (MemoryStream mem = new MemoryStream())
+            {
+                BinaryFormatter bin = new BinaryFormatter();
+                var pathslist = Items.Where(x => x.IsSelected).Cast<SPFileItem>().Select(x => x.SPUrl).ToArray();
+                bin.Serialize(mem, pathslist);
+                var paths = (short)(DataFormats.GetDataFormat(DataFormats.Serializable).Id);
+                virtualFileDataObject.SetData(paths, mem.ToArray());
+            }
             return virtualFileDataObject;
         }
 
@@ -573,13 +594,20 @@ namespace SharePointExplorer.Models
                     if (!Folder.Folders.Any(x => x.Name == newName)) break;
                 }
             }
-            var newFolder =Folder.Folders.Add(newName);
+            CreateFolderInternal(newName);
+        }
+
+        private SPFolderItem CreateFolderInternal(string newName)
+        {
+            var newFolder = Folder.Folders.Add(newName);
             Context.ExecuteQuery();
-            Context.Load(newFolder, 
-                x => x.Name, 
+            Context.Load(newFolder,
+                x => x.Name,
                 x => x.ServerRelativeUrl);
             Context.ExecuteQuery();
-            Children.Add(new SPFolderItem(this, Context, newFolder));
+            var newFolderItem = new SPFolderItem(this, Context, newFolder);
+            Children.Add(newFolderItem);
+            return newFolderItem;
         }
 
         public override bool AvailableCreateFolder
@@ -606,6 +634,111 @@ namespace SharePointExplorer.Models
                 x => x.Name,
                 x => x.ServerRelativeUrl);
             Context.ExecuteQueryWithIncrementalRetry();
+        }
+
+        public override ICommand MoveFolderCommand
+        {
+            get {
+                return CreateCommand(x => {
+                    if (x == null)
+                    {
+                        var vm = new MoveFolderVM(this);
+                        vm.MovePath = this.SPUrl;
+                        ShowDialog(vm, Properties.Resources.MsgMove);
+                        if (vm.DialogResult)
+                        {
+                            ExecuteActionAsync(MoveToFolderAsync(vm.MovePath), null, null, true);
+                        }
+                    }
+                    else
+                    {
+                        ExecuteActionAsync(MoveToFolderSubAsync((string[])x), null, null, true);
+                    }
+                } );
+            }
+        }
+
+        private async Task MoveToFolderSubAsync(string[] sourceUrls)
+        {
+            var parentList = new List<SPFolderItem>();
+            foreach (var sourceUrl in sourceUrls)
+            {
+                var source = await RootVM.FindItemByUrl(sourceUrl, false);
+                var folder = source as SPFolderItem;
+                if (folder != null)
+                {
+                    await folder.MoveToFolderAsync(this.SPUrl + "/" + source.Name);
+                }
+                var file = source as SPFileItem;
+                if (file != null)
+                {
+                    var newParent = await file.MoveToFolderAsync(this.SPUrl);
+                    parentList.Add(newParent);
+                }
+            }
+            await EnsureChildren(true);
+            foreach (var parent in parentList.Distinct())
+            {
+                await parent.EnsureChildren(true);
+            }
+        }
+
+        public async Task MoveToFolderAsync(string targetFolderUrl)
+        {
+            if (targetFolderUrl.StartsWith(Context.Url))
+            {
+                Folder.MoveTo(targetFolderUrl);
+                Context.ExecuteQuery();
+                Parent.Children.Remove(this);
+            }
+            else
+            {
+                var executed = false;
+                foreach (var site in RootVM.Children.OfType<SPSiteItem>())
+                {
+                    if (targetFolderUrl.StartsWith(site.Context.Url))
+                    {
+                        var targetSite = await site.FindNodeByUrl(targetFolderUrl, true) as SPFolderItem;
+                        if (targetSite == null)
+                        {
+                            targetSite = await site.FindNodeByUrl(GetParentFolder(targetFolderUrl), true) as SPFolderItem;
+                            var newFolder = targetFolderUrl.Split('/').LastOrDefault();
+                            if (targetSite != null) targetSite = targetSite.CreateFolderInternal(newFolder);
+                        }
+                        if (targetSite != null)
+                        {
+                            await targetSite.CopyFolder(this);
+                            executed = true;
+                            break;
+                        }
+                    }
+                }
+                if (!executed) throw new ApplicationException(Properties.Resources.MsgInvalidMoveTargetFolder);
+            }
+            
+            var newParent = await RootVM.FindItemByUrl(targetFolderUrl, true);
+            if (newParent != null)
+            {
+                newParent.IsSelected = true;
+                await newParent.EnsureChildren(true);
+            }
+        }
+
+        public override async Task<SPTreeItem> FindNodeByUrl(string url, bool ensure)
+        {
+            var target = await base.FindNodeByUrl(url, ensure);
+            if (target != null) return target;
+            foreach (var child in Items)
+            {
+                target = await child.FindNodeByUrl(url, ensure);
+                if (target != null) return target;
+            }
+            return null;
+        }
+
+        public override bool AvailableMoveFolder
+        {
+            get { return true; }
         }
 
         protected override async Task DeleteFolder(object obj)
@@ -708,6 +841,50 @@ namespace SharePointExplorer.Models
                 ExplorerSettings.Instance.CheckedOutWidth = value;
                 ExplorerSettings.Instance.Save();
                 OnPropertyChanged("CheckedOutWidth");
+            }
+        }
+
+        public async Task CopyFolder(SPFolderItem source)
+        {
+            await EnsureChildren(true);
+            await source.EnsureChildren(true);
+
+            //folder 
+            foreach (var sourceFolder in source.Children.OfType<SPFolderItem>())
+            {
+                var targetFolder = Children.OfType<SPFolderItem>().Where(x=> string.Equals(x.Name,sourceFolder.Name, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault() ;
+                if (targetFolder == null)
+                {
+                    targetFolder = CreateFolderInternal(sourceFolder.Name);
+                }
+                await targetFolder.CopyFolder(sourceFolder);
+            }
+            //file
+            foreach (var sourceFile in source.Items.OfType<SPFileItem>())
+            {
+                if (IsCancelled)
+                {
+                    throw new OperationCanceledException();
+                }
+                var tempFile = System.IO.Path.GetTempFileName();
+                try
+                {
+                    await Task.Run(() =>
+                    {
+                        sourceFile.Download(tempFile);
+                    });
+                    if (IsCancelled)
+                    {
+                        throw new OperationCanceledException();
+                    }
+                    var targetPath = Folder.ServerRelativeUrl + "/" + sourceFile.Name;
+                    await UploadSub(tempFile, targetPath);
+                }
+                finally 
+                {
+                    System.IO.File.Delete(tempFile);
+
+                }
             }
         }
 

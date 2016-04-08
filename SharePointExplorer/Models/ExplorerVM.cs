@@ -31,6 +31,17 @@ namespace SharePointExplorer.Models
 
         private SPTreeItem _selectedItem;
 
+        public bool TargetAll
+        {
+            get { return _targetAll; }
+            set { _targetAll = value; OnPropertyChanged("TargetAll", "SearchModeText"); }
+        }
+        private bool _targetAll;
+
+        public string SearchModeText
+        {
+            get { return _targetAll ? Properties.Resources.MsgSeacrhModeAll : Properties.Resources.MsgSearchModeFolder;  }
+        }
         public object CurrentContent
         {
             get { return _currentContent; }
@@ -176,11 +187,15 @@ namespace SharePointExplorer.Models
 
         private async Task Search(object obj)
         {
-            var target = SelectedItem as SPTreeItem;
             if (string.IsNullOrEmpty((string)obj)) return;
+            var target = SelectedItem as SPTreeItem;
             if (target != null)
             {
                 await Search(obj, target);
+            }
+            else
+            {
+                await SearchAll(obj);
             }
         }
 
@@ -192,14 +207,43 @@ namespace SharePointExplorer.Models
                 ShowMessage(string.Format(Resources.MsgSearchNotFound, obj), "Info");
                 return;
             }
-            var content = new SPSearchResultsItem(target.FindRoot(), target.Context, list);
-            var root = content.FindRoot();
-            var old = root.Children.Where(x => x.Name == content.Name).FirstOrDefault();
-            if (old != null) root.Children.Remove(old);
-            root.Children.Insert(0, content);
+            var content = new SPSearchResultsItem(this,  list);
+            var old = this.Children.Where(x => x.Name == content.Name).FirstOrDefault();
+            if (old != null) this.Children.Remove(old);
+            this.Children.Insert(0, content);
             content.IsSelected = true;
             this.CurrentContent = ViewUtil.BuildContent(content);
         }
+
+        public ICommand SearchAllCommand
+        {
+            get { return CreateCommand((x) => ExecuteActionAsync(SearchAll(x))); }
+        }
+
+        private async Task SearchAll(object obj)
+        {
+            if (string.IsNullOrEmpty((string)obj)) return;
+            var listAll = new List<SPSearchResultFileItem>();
+            foreach (SPSiteItem target in Children)
+            {
+                var list = await target.Search(obj);
+                listAll.AddRange(list);
+                
+            }
+            if (listAll.Count == 0)
+            {
+                ShowMessage(string.Format(Resources.MsgSearchNotFound, obj), "Info");
+                return;
+            }
+            var content = new SPSearchResultsItem(this, listAll);
+            var old = this.Children.Where(x => x.Name == content.Name).FirstOrDefault();
+            if (old != null) this.Children.Remove(old);
+            this.Children.Insert(0, content);
+            content.IsSelected = true;
+            this.CurrentContent = ViewUtil.BuildContent(content);
+        }
+
+
 
         public ICommand CancelCommand
         {
@@ -231,6 +275,19 @@ namespace SharePointExplorer.Models
         }
 
 
+        public async Task<SPTreeItem> FindItemByUrl(string url, bool ensure)
+        {
+            foreach(var site in Children)
+            {
+                if (url.StartsWith(site.SPUrl))
+                {
+                    var target = await site.FindNodeByUrl(url, ensure);
+                    if (target != null) return target;
+                }
+            }
+            return null;
+        }
+
         private JumpList jumpList = new JumpList();
 
         public void UpdateJumpList()
@@ -255,5 +312,8 @@ namespace SharePointExplorer.Models
         {
             get { return new string[] { "yyyy/MM/dd HH:mm:ss", "yyyy年MM月dd日 HH時mm分" }; }
         }
+
+
+
     }
 }

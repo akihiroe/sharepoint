@@ -44,9 +44,7 @@ namespace SharePointExplorer.Models
         {
             get
             {
-                var uri = new Uri(Context.Url);
-                var root = uri.Scheme + "://" + uri.Host;
-                return root + List.DefaultViewUrl;
+                return Context.Url + "/" + List.Title;
             }
         }
 

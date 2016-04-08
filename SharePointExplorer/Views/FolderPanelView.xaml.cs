@@ -3,11 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -189,25 +192,9 @@ namespace SharePointExplorer.Views
                 if (dragData != null)
                 {
                     isButtonDown = false;
-
                     VirtualFileDataObject.DoDragDrop(sender as DependencyObject, dragData, DragDropEffects.Copy);
                 }
             }
-        }
-
-        private static T FindAnchestor<T>(DependencyObject current)
-            where T : DependencyObject
-        {
-            do
-            {
-                if (current is T)
-                {
-                    return (T)current;
-                }
-                current = VisualTreeHelper.GetParent(current);
-            }
-            while (current != null);
-            return null;
         }
 
     }

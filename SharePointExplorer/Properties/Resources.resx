@@ -213,11 +213,17 @@
   <data name="MsgFormat" xml:space="preserve">
     <value>Format</value>
   </data>
+  <data name="MsgInvalidMoveTargetFolder" xml:space="preserve">
+    <value>Invalid target folder</value>
+  </data>
   <data name="MsgLicenseKey" xml:space="preserve">
     <value>Register license key</value>
   </data>
   <data name="MsgModifiedDate" xml:space="preserve">
     <value>Modified date</value>
+  </data>
+  <data name="MsgMove" xml:space="preserve">
+    <value>Move</value>
   </data>
   <data name="MsgMultiDeleteConfirm" xml:space="preserve">
     <value>Are you sure you want to delete {0} files?</value>
@@ -258,8 +264,17 @@
   <data name="MsgSave" xml:space="preserve">
     <value>Save</value>
   </data>
+  <data name="MsgSeacrhModeAll" xml:space="preserve">
+    <value>All</value>
+  </data>
   <data name="MsgSearch" xml:space="preserve">
     <value>Search</value>
+  </data>
+  <data name="MsgSearchMode" xml:space="preserve">
+    <value>Search mode</value>
+  </data>
+  <data name="MsgSearchModeFolder" xml:space="preserve">
+    <value>Folder</value>
   </data>
   <data name="MsgSearchNotFound" xml:space="preserve">
     <value>Not Found. {0}</value>
@@ -276,8 +291,14 @@
   <data name="MsgSize" xml:space="preserve">
     <value>Size</value>
   </data>
+  <data name="MsgTargetFolder" xml:space="preserve">
+    <value>Target URL</value>
+  </data>
   <data name="MsgUpload" xml:space="preserve">
     <value>Upload</value>
+  </data>
+  <data name="MsgUploading" xml:space="preserve">
+    <value>{0} uploading.</value>
   </data>
   <data name="MsgUser" xml:space="preserve">
     <value>User</value>

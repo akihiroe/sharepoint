@@ -14,6 +14,8 @@ namespace SharePointExplorer.Models
     [View(typeof(SPSearchResultsView))]
     public class SPSearchResultsItem : SPTreeItem
     {
+        private ExplorerVM explorer;
+
         public override string Name
         {
             get { return SharePointExplorer.Properties.Resources.MsgSearchResults; }
@@ -44,11 +46,11 @@ namespace SharePointExplorer.Models
             OnPropertyChanged("CanOpen", "CanDelete", "CanCheckout", "CanCheckin", "CanCancelCheckout", "CanRename");
         }
 
-        public SPSearchResultsItem(TreeItem parent, ClientContext context, IList<SPSearchResultFileItem> results)
-            : base(parent, context)
+        public SPSearchResultsItem(ExplorerVM parent, IList<SPSearchResultFileItem> results)
+            : base(null, null)
         {
             Items = new ObservableCollection<SPSearchResultFileItem>(results);
-
+            this.explorer = parent;
         }
 
         protected override Task LoadChildren()
@@ -59,5 +61,12 @@ namespace SharePointExplorer.Models
         public override bool AvailableOpenWebSite { get { return false; } }
         public override bool AvailableRefresh { get { return false; } }
 
+        public override string SPUrl
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

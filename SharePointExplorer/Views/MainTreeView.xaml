@@ -14,7 +14,7 @@
     <Grid>
         <TreeView Name="Folders" AllowDrop="True"
                           ItemsSource="{Binding Path=Children,Mode=OneWay}" 
-                          vg:TreeViewSelectedItemChangedBehavior.Command="{Binding Path=SelectedItemChangedCommand, Mode=OneWay}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column="0" xmlns:vg="clr-namespace:ViewMaker.Core.Wpf;assembly=ViewMaker.Core">
+                          vg:TreeViewSelectedItemChangedBehavior.Command="{Binding Path=SelectedItemChangedCommand, Mode=OneWay}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column="0" xmlns:vg="clr-namespace:ViewMaker.Core.Wpf;assembly=ViewMaker.Core" Drop="Folders_Drop" PreviewMouseDown="Folders_PreviewMouseDown" PreviewMouseUp="Folders_PreviewMouseUp" PreviewMouseMove="Folders_PreviewMouseMove">
             <TreeView.InputBindings>
             </TreeView.InputBindings>
             <TreeView.Resources>
@@ -22,6 +22,7 @@
                     <Separator/>
                     <MenuItem Header="{x:Static properties:Resources.MsgRefresh}" Command="{Binding Path=RefreshCommand}" IsEnabled="{Binding Path=AvailableRefresh}" />
                     <MenuItem Header="{x:Static properties:Resources.MsgOpenWebSite}" Command="{Binding Path=OpenWebSiteCommand}" Visibility="{Binding Path=AvailableOpenWebSite, Converter={StaticResource BooleanToVisibilityConverter}}"  />
+                    <MenuItem Header="{x:Static properties:Resources.MsgCopyUrlToClipBoard}" Command="{Binding Path=CopyUrlToClipboardCommand}"  IsEnabled="{Binding Path=CanCopyUrlToClipboard}"  />
                     <Separator/>
                     <MenuItem Header="{x:Static properties:Resources.MsgEditConnection}" Command="{Binding Path=EditConnectionCommand}" Visibility="{Binding Path=AvailableEditConnection, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     <MenuItem Header="{x:Static properties:Resources.MsgDisconnect}" Command="{Binding Path=DisconnectCommand}" Visibility="{Binding Path=AvailableDisconnect, Converter={StaticResource BooleanToVisibilityConverter}}" />
@@ -29,6 +30,7 @@
                     <Separator/>
                     <MenuItem Header="{x:Static properties:Resources.MsgCreateFolder}" Command="{Binding Path=CreateFolderCommand}" Visibility="{Binding Path=AvailableCreateFolder, Converter={StaticResource BooleanToVisibilityConverter}}"  />
                     <MenuItem Header="{x:Static properties:Resources.MsgRenameFolder}" Command="{Binding Path=RenameFolderEditCommand}" Visibility="{Binding Path=AvailableRenameFolder, Converter={StaticResource BooleanToVisibilityConverter}}"  />
+                    <MenuItem Header="{x:Static properties:Resources.MsgMove}" Command="{Binding Path=MoveFolderCommand}" Visibility="{Binding Path=AvailableMoveFolder, Converter={StaticResource BooleanToVisibilityConverter}}"  />
                     <MenuItem Header="{x:Static properties:Resources.MsgDelete}" Command="{Binding Path=DeleteFolderCommand}" Visibility="{Binding Path=AvailableDeleteFolder, Converter={StaticResource BooleanToVisibilityConverter}}"  />
                 </ContextMenu>
             </TreeView.Resources>

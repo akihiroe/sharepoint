@@ -75,7 +75,7 @@ namespace SharePointExplorer.Tests
         public void CopyUrlToClipboardCommandTest()
         {
             testFolder.SelectedFile = (SPFileItem)testFolder.Items.Where(x => x.Name == TestFileText).FirstOrDefault();
-            testFolder.CopyUrlToClipboardCommand.Execute(TestFileText);
+            testFolder.SelectedFile.CopyUrlToClipboardCommand.Execute(TestFileText);
             Assert.AreEqual(testFolder.SelectedFile.SPUrl, Clipboard.GetText());
             Assert.AreEqual("", testFolder.Message);
         }

@@ -8,8 +8,8 @@ namespace SharePointExplorer.Tests
 {
     public static class TestConfig
     {
-        public const string SiteUrl = "required";
-        public const string User = "required";
-        public const string Pass = "required";
+        public const string SiteUrl = "https://proaxiaconsulting.sharepoint.com";
+        public const string User = "lyncuser@proaxiaconsulting.onmicrosoft.com";
+        public const string Pass = "";
     }
 }

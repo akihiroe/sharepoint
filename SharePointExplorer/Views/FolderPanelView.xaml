@@ -41,7 +41,7 @@
                           MouseDoubleClick="Items_MouseDoubleClick" 
                           Drop="Items_Drop" 
                           PreviewMouseLeftButtonDown="Items_PreviewMouseLeftButtonDown" 
-                          MouseMove="Items_MouseMove" PreviewMouseUp="Items_PreviewMouseUp">
+                          MouseMove="Items_MouseMove" PreviewMouseUp="Items_PreviewMouseUp" >
             <ListView.CommandBindings>
             </ListView.CommandBindings>
             <ListView.InputBindings>

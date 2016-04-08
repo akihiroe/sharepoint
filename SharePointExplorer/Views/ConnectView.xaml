@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:SharePointExplorer.Views"
              xmlns:properties="clr-namespace:SharePointExplorer.Properties"
              mc:Ignorable="d" 
-            FontSize="16"
+             FontSize="16"
+             Margin="5 5 5 5"
              Width="600" Height="150" >
     <Grid>
         <ContentControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:system="clr-namespace:System;assembly=mscorlib" IsTabStop="False">

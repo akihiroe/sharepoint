@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace SharePointExplorer.Models
@@ -64,6 +65,17 @@ namespace SharePointExplorer.Models
 
         }
 
+        public ICommand CopyUrlToClipboardCommand
+        {
+            get { return this.CreateCommand(CopyUrlToClipboard); }
+        }
+
+
+        private void CopyUrlToClipboard(object arg)
+        {
+            Clipboard.SetText(SPUrl);
+        }
+
         public ICommand DisconnectCommand { get { return CreateCommand(Disconnect); } }
         protected virtual void Disconnect(object obj)
         {
@@ -110,6 +122,9 @@ namespace SharePointExplorer.Models
             return Task.Delay(0);
         }
 
+
+        public virtual ICommand MoveFolderCommand { get { return CreateCommand((x) => { }); } } 
+
         public ICommand DeleteFolderCommand { get {
                 return CreateCommand(x => {
 
@@ -135,6 +150,7 @@ namespace SharePointExplorer.Models
         public virtual bool AvailableClearCache { get { return Context != null; } }
         public virtual bool AvailableCreateFolder { get { return false; } }
         public virtual bool AvailableRenameFolder { get { return false; } }
+        public virtual bool AvailableMoveFolder { get { return false; } }
         public virtual bool AvailableDeleteFolder { get { return false; } }
 
 
@@ -148,6 +164,21 @@ namespace SharePointExplorer.Models
         public bool IsNotFolderEditing
         {
             get { return !_isFolderEditing; }
+        }
+
+        public abstract string SPUrl { get; }
+
+        public virtual async Task<SPTreeItem> FindNodeByUrl(string url, bool ensure)
+        {
+            if (this.SPUrl == url.TrimEnd('/')) return this;
+            if (!url.StartsWith(this.SPUrl)) return null;
+            if (ensure) await EnsureChildren();
+            foreach (var child in Children.OfType<SPTreeItem>())
+            {
+                var target = await child.FindNodeByUrl(url, ensure);
+                if (target != null) return target;
+            }
+            return null;
         }
 
         public SPTreeItem(TreeItem parent, ClientContext context):base(parent)
@@ -183,10 +214,8 @@ namespace SharePointExplorer.Models
 
         private void Close(object obj)
         {
-            Parent.Children.Remove(this);
-            Parent.IsSelected = true;
+            RootVM.Children.Remove(this);
         }
-
         protected void Download(string ServerRelativeUrl, string localPath, long totalSize)
         {
             var temp = System.IO.Path.GetTempFileName();
@@ -208,7 +237,7 @@ namespace SharePointExplorer.Models
         protected void Download(string ServerRelativeUrl, System.IO.Stream st, long totalSize)
         {
             var data = Microsoft.SharePoint.Client.File.OpenBinaryDirect(Context, ServerRelativeUrl);
-            var bufferSize = 1024 * 96;
+            var bufferSize = 1024 * 1024;
             var content = new ReadSeekableStream(data.Stream, bufferSize, totalSize, new IDisposable[] { });
             var buffer = new Byte[bufferSize];
             long downloaded = 0;
@@ -223,10 +252,11 @@ namespace SharePointExplorer.Models
                 if (length <= 0) break;
 
                 downloaded += length;
-                this.NotifyProgressMessage(string.Format("{0} {1}%", ServerRelativeUrl.Split('/').Last(), downloaded * 100 / totalSize));
+                this.NotifyProgressMessage(string.Format("{0} {1}%", string.Format(Properties.Resources.MsgDownloading, ServerRelativeUrl.Split('/').Last()), downloaded * 100 / totalSize));
                 st.Write(buffer, 0, length);
             }
         }
+
 
         public virtual ExplorerVM RootVM
         {

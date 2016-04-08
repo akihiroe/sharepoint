@@ -178,5 +178,10 @@ namespace SharePointExplorer.Models
         {
             get { return explorer; }
         }
+
+        public override string SPUrl
+        {
+            get { return siteUrl; }
+        }
     }
 }

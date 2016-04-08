@@ -45,6 +45,7 @@ namespace SharePointExplorer.Models
 
         // IDataObject constants
         public const Int32 DV_E_TYMED = unchecked((Int32)0x80040069);
+
     }
 
 }

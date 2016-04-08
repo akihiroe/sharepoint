@@ -349,6 +349,15 @@ namespace SharePointExplorer.Properties {
         }
         
         /// <summary>
+        ///   Invalid target folder に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgInvalidMoveTargetFolder {
+            get {
+                return ResourceManager.GetString("MsgInvalidMoveTargetFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Register license key に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string MsgLicenseKey {
@@ -363,6 +372,15 @@ namespace SharePointExplorer.Properties {
         public static string MsgModifiedDate {
             get {
                 return ResourceManager.GetString("MsgModifiedDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Move に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgMove {
+            get {
+                return ResourceManager.GetString("MsgMove", resourceCulture);
             }
         }
         
@@ -484,11 +502,38 @@ namespace SharePointExplorer.Properties {
         }
         
         /// <summary>
+        ///   All に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgSeacrhModeAll {
+            get {
+                return ResourceManager.GetString("MsgSeacrhModeAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Search に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string MsgSearch {
             get {
                 return ResourceManager.GetString("MsgSearch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Search mode に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgSearchMode {
+            get {
+                return ResourceManager.GetString("MsgSearchMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Folder に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgSearchModeFolder {
+            get {
+                return ResourceManager.GetString("MsgSearchModeFolder", resourceCulture);
             }
         }
         
@@ -538,11 +583,29 @@ namespace SharePointExplorer.Properties {
         }
         
         /// <summary>
+        ///   Target URL に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgTargetFolder {
+            get {
+                return ResourceManager.GetString("MsgTargetFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Upload に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string MsgUpload {
             get {
                 return ResourceManager.GetString("MsgUpload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   {0} uploading. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgUploading {
+            get {
+                return ResourceManager.GetString("MsgUploading", resourceCulture);
             }
         }
         

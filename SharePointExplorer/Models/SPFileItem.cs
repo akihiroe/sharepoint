@@ -152,7 +152,7 @@ namespace SharePointExplorer.Models
             get { return IsLocalEditing ? "/SharePointExplorer;Component/Images/editing.png" : "/SharePointExplorer;Component/Images/blank.png"; }
         }
 
-        public string SPUrl
+        public override string SPUrl
         {
             get
             {
@@ -228,6 +228,12 @@ namespace SharePointExplorer.Models
             cache.LastModified = Modified;
             FileCache.SaveCachedFile();
             return cache;
+        }
+
+
+        public void Download(string localPath)
+        {
+            Download(File.ServerRelativeUrl, localPath, Size);
         }
 
 
@@ -475,17 +481,6 @@ namespace SharePointExplorer.Models
             MessageBox.Show(SPUrl);
         }
 
-        public ICommand CopyUrlToClipboardCommand
-        {
-            get { return this.CreateCommand(CopyUrlToClipboard); }
-        }
-
-
-        private void CopyUrlToClipboard(object arg)
-        {
-            Clipboard.SetText(SPUrl);
-        }
-
         public bool CanCopyUrlToClipboardCommand
         {
             get { return true; }
@@ -493,146 +488,12 @@ namespace SharePointExplorer.Models
 
         public async Task<File> Upload(string fileName, string serverPath, int fileChunkSizeInMB = 3)
         {
-            var filename = System.IO.Path.GetFileName(fileName);
-            this.NotifyProgressMessage(string.Format("{0} Uploading", filename));
+            var filename = serverPath.Split('/').LastOrDefault();
+            this.NotifyProgressMessage(string.Format(Properties.Resources.MsgUploading, filename));
 
-            return await Task<File>.Run(() => {
-                Guid uploadId = Guid.NewGuid();
-                //var tempFileName = filename + " uploding " +  uploadId.ToString("D");
-                //var tempServerpath = GetParentFolder(serverPath) + tempFileName;
-                int blockSize = fileChunkSizeInMB * 1024 * 1024;
-                long fileSize = new System.IO.FileInfo(fileName).Length;
-
-                if (fileSize <= blockSize)
-                {
-                    // Use regular approach.
-                    using (var fs = new System.IO.FileStream(fileName, System.IO.FileMode.Open))
-                    {
-                        FileCreationInformation fileInfo = new FileCreationInformation();
-                        fileInfo.ContentStream = fs;
-                        fileInfo.Url = System.IO.Path.GetFileName(fileName);
-                        fileInfo.Overwrite = true;
-                        var direItem = Context.Web.GetFolderByServerRelativeUrl(GetParentFolder(serverPath));
-                        var uploadFile = direItem.Files.Add(fileInfo);
-
-                        Context.Load(uploadFile);
-                        Context.ExecuteQuery();
-
-                    }
-                }
-                else
-                {
-                    // Use large file upload approach.
-                    ClientResult<long> bytesUploaded = null;
-
-                    System.IO.FileStream fs = null;
-                    try
-                    {
-                        fs = System.IO.File.Open(fileName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite);
-                        using (var br = new System.IO.BinaryReader(fs))
-                        {
-                            byte[] buffer = new byte[blockSize];
-                            Byte[] lastBuffer = null;
-                            long fileoffset = 0;
-                            long totalBytesRead = 0;
-                            int bytesRead;
-                            bool first = true;
-                            bool last = false;
-
-                            // Read data from file system in blocks. 
-                            while ((bytesRead = br.Read(buffer, 0, buffer.Length)) > 0)
-                            {
-
-                                totalBytesRead = totalBytesRead + bytesRead;
-
-                                // You've reached the end of the file.
-                                if (totalBytesRead == fileSize)
-                                {
-                                    last = true;
-                                    // Copy to a new buffer that has the correct size.
-                                    lastBuffer = new byte[bytesRead];
-                                    Array.Copy(buffer, 0, lastBuffer, 0, bytesRead);
-                                }
-
-                                if (first)
-                                {
-                                    using (var contentStream = new System.IO.MemoryStream())
-                                    {
-                                        // Add an empty file.
-                                        FileCreationInformation fileInfo = new FileCreationInformation();
-                                        fileInfo.ContentStream = contentStream;
-                                        fileInfo.Url = filename;
-                                        fileInfo.Overwrite = true;
-
-                                        var direItem = Context.Web.GetFolderByServerRelativeUrl(GetParentFolder(serverPath));
-                                        var uploadFile = direItem.Files.Add(fileInfo);
-
-                                        // Start upload by uploading the first slice. 
-                                        using (var s = new System.IO.MemoryStream(buffer))
-                                        {
-                                            // Call the start upload method on the first slice.
-                                            bytesUploaded = uploadFile.StartUpload(uploadId, s);
-                                            Context.ExecuteQuery();
-                                            // fileoffset is the pointer where the next slice will be added.
-                                            fileoffset = bytesUploaded.Value;
-                                        }
-
-                                        // You can only start the upload once.
-                                        first = false;
-                                    }
-                                }
-                                else
-                                {
-                                    // Get a reference to your file.
-                                    var uploadFile = Context.Web.GetFileByServerRelativeUrl(serverPath);
-
-                                    if (last)
-                                    {
-                                        // Is this the last slice of data?
-                                        using (var s = new System.IO.MemoryStream(lastBuffer))
-                                        {
-                                            // End sliced upload by calling FinishUpload.
-                                            uploadFile = uploadFile.FinishUpload(uploadId, fileoffset, s);
-                                            Context.ExecuteQuery();
-                                        }
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        using (var s = new System.IO.MemoryStream(buffer))
-                                        {
-                                            // Continue sliced upload.
-                                            bytesUploaded = uploadFile.ContinueUpload(uploadId, fileoffset, s);
-                                            Context.ExecuteQuery();
-                                            // Update fileoffset for the next slice.
-                                            fileoffset = bytesUploaded.Value;
-                                        }
-                                    }
-                                }
-
-                                if (IsCancelled)
-                                {
-                                    var uploadFile = Context.Web.GetFileByServerRelativeUrl(serverPath);
-                                    uploadFile.CancelUpload(uploadId);
-                                    Context.ExecuteQuery();
-                                    throw new OperationCanceledException();
-                                }
-                                this.NotifyProgressMessage(string.Format("{0} {1}%", System.IO.Path.GetFileName(fileName), fileoffset * 100 / fileSize));
-
-
-                            } // while ((bytesRead = br.Read(buffer, 0, buffer.Length)) > 0)
-                        }
-                        Remark = "";
-                    }
-                    finally
-                    {
-                        this.NotifyProgressMessage("");
-                        if (fs != null)
-                        {
-                            fs.Dispose();
-                        }
-                    }
-                }
+            return await Task<File>.Run(() =>
+            {
+                UploadInternal(fileName, serverPath, fileChunkSizeInMB);
                 _file = Context.Web.GetFileByServerRelativeUrl(serverPath);
                 Context.Load(_file,
                     x => x.UniqueId,
@@ -649,5 +510,186 @@ namespace SharePointExplorer.Models
             });
 
         }
+
+
+        private void UploadInternal(string fileName, string serverPath, int fileChunkSizeInMB)
+        {
+            var filename = serverPath.Split('/').LastOrDefault();
+            Guid uploadId = Guid.NewGuid();
+            //var tempFileName = filename + " uploding " +  uploadId.ToString("D");
+            //var tempServerpath = GetParentFolder(serverPath) + tempFileName;
+            int blockSize = fileChunkSizeInMB * 1024 * 1024;
+            long fileSize = new System.IO.FileInfo(fileName).Length;
+
+            if (fileSize <= blockSize)
+            {
+                // Use regular approach.
+                using (var fs = new System.IO.FileStream(fileName, System.IO.FileMode.Open))
+                {
+                    FileCreationInformation fileInfo = new FileCreationInformation();
+                    fileInfo.ContentStream = fs;
+                    fileInfo.Url = filename;
+                    fileInfo.Overwrite = true;
+                    var direItem = Context.Web.GetFolderByServerRelativeUrl(GetParentFolder(serverPath));
+                    var uploadFile = direItem.Files.Add(fileInfo);
+
+                    Context.Load(uploadFile);
+                    Context.ExecuteQuery();
+
+                }
+            }
+            else
+            {
+                // Use large file upload approach.
+                ClientResult<long> bytesUploaded = null;
+
+                System.IO.FileStream fs = null;
+                try
+                {
+                    fs = System.IO.File.Open(fileName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite);
+                    using (var br = new System.IO.BinaryReader(fs))
+                    {
+                        byte[] buffer = new byte[blockSize];
+                        Byte[] lastBuffer = null;
+                        long fileoffset = 0;
+                        long totalBytesRead = 0;
+                        int bytesRead;
+                        bool first = true;
+                        bool last = false;
+
+                        // Read data from file system in blocks. 
+                        while ((bytesRead = br.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+
+                            totalBytesRead = totalBytesRead + bytesRead;
+
+                            // You've reached the end of the file.
+                            if (totalBytesRead == fileSize)
+                            {
+                                last = true;
+                                // Copy to a new buffer that has the correct size.
+                                lastBuffer = new byte[bytesRead];
+                                Array.Copy(buffer, 0, lastBuffer, 0, bytesRead);
+                            }
+
+                            if (first)
+                            {
+                                using (var contentStream = new System.IO.MemoryStream())
+                                {
+                                    // Add an empty file.
+                                    FileCreationInformation fileInfo = new FileCreationInformation();
+                                    fileInfo.ContentStream = contentStream;
+                                    fileInfo.Url = filename;
+                                    fileInfo.Overwrite = true;
+
+                                    var direItem = Context.Web.GetFolderByServerRelativeUrl(GetParentFolder(serverPath));
+                                    var uploadFile = direItem.Files.Add(fileInfo);
+
+                                    // Start upload by uploading the first slice. 
+                                    using (var s = new System.IO.MemoryStream(buffer))
+                                    {
+                                        // Call the start upload method on the first slice.
+                                        bytesUploaded = uploadFile.StartUpload(uploadId, s);
+                                        Context.ExecuteQuery();
+                                        // fileoffset is the pointer where the next slice will be added.
+                                        fileoffset = bytesUploaded.Value;
+                                    }
+
+                                    // You can only start the upload once.
+                                    first = false;
+                                }
+                            }
+                            else
+                            {
+                                // Get a reference to your file.
+                                var uploadFile = Context.Web.GetFileByServerRelativeUrl(serverPath);
+
+                                if (last)
+                                {
+                                    // Is this the last slice of data?
+                                    using (var s = new System.IO.MemoryStream(lastBuffer))
+                                    {
+                                        // End sliced upload by calling FinishUpload.
+                                        uploadFile = uploadFile.FinishUpload(uploadId, fileoffset, s);
+                                        Context.ExecuteQuery();
+                                    }
+                                    break;
+                                }
+                                else
+                                {
+                                    using (var s = new System.IO.MemoryStream(buffer))
+                                    {
+                                        // Continue sliced upload.
+                                        bytesUploaded = uploadFile.ContinueUpload(uploadId, fileoffset, s);
+                                        Context.ExecuteQuery();
+                                        // Update fileoffset for the next slice.
+                                        fileoffset = bytesUploaded.Value;
+                                    }
+                                }
+                            }
+
+                            if (IsCancelled)
+                            {
+                                var uploadFile = Context.Web.GetFileByServerRelativeUrl(serverPath);
+                                uploadFile.CancelUpload(uploadId);
+                                Context.ExecuteQuery();
+                                throw new OperationCanceledException();
+                            }
+                            this.NotifyProgressMessage(string.Format("{0} {1}%", string.Format(Properties.Resources.MsgUploading, filename), fileoffset * 100 / fileSize));
+
+
+                        } // while ((bytesRead = br.Read(buffer, 0, buffer.Length)) > 0)
+                    }
+                    Remark = "";
+                }
+                finally
+                {
+                    this.NotifyProgressMessage("");
+                    if (fs != null)
+                    {
+                        fs.Dispose();
+                    }
+                }
+            }
+        }
+
+
+        public async Task<SPFolderItem> MoveToFolderAsync(string targetFolderUrl)
+        {
+            var newParent = await RootVM.FindItemByUrl(targetFolderUrl, true) as SPFolderItem;
+            if (newParent == null)
+            {
+                throw new InvalidOperationException("can't load target folder");
+            }
+            if (targetFolderUrl.StartsWith(Context.Url))
+            {
+                File.MoveTo(targetFolderUrl + "/" + Name, MoveOperations.Overwrite);
+                Context.ExecuteQuery();
+                ((SPFolderItem)Parent).Items.Remove(this);
+            }
+            else
+            {
+                var tempFile = System.IO.Path.GetTempFileName();
+                try
+                {
+                    await Task.Run(() =>
+                    {
+                        Download(tempFile);
+                    });
+                    if (IsCancelled)
+                    {
+                        throw new OperationCanceledException();
+                    }
+                    await newParent.UploadFile(tempFile, newParent.Path + "/" + Name);
+                }
+                finally
+                {
+                    System.IO.File.Delete(tempFile);
+                }
+            }
+            return newParent;
+
+        }
+
     }
 }
