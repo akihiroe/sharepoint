@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using ViewMaker.Core;
 
 namespace SharePointExplorer.Models
@@ -46,8 +47,8 @@ namespace SharePointExplorer.Models
             OnPropertyChanged("CanOpen", "CanDelete", "CanCheckout", "CanCheckin", "CanCancelCheckout", "CanRename");
         }
 
-        public SPSearchResultsItem(ExplorerVM parent, IList<SPSearchResultFileItem> results)
-            : base(null, null)
+        public SPSearchResultsItem(ExplorerVM parent, IList<SPSearchResultFileItem> results,SPSiteItem target)
+            : base(target, target == null ? null : target.Context)
         {
             Items = new ObservableCollection<SPSearchResultFileItem>(results);
             this.explorer = parent;
@@ -67,6 +68,13 @@ namespace SharePointExplorer.Models
             {
                 throw new NotImplementedException();
             }
+        }
+
+        public ICommand CloseCommand { get { return CreateCommand(Close); } }
+
+        private void Close(object obj)
+        {
+            explorer.Children.Remove(this);
         }
     }
 }

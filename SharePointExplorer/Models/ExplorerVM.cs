@@ -189,7 +189,7 @@ namespace SharePointExplorer.Models
         {
             if (string.IsNullOrEmpty((string)obj)) return;
             var target = SelectedItem as SPTreeItem;
-            if (target != null)
+            if (target != null && target.Context != null)
             {
                 await Search(obj, target);
             }
@@ -207,7 +207,8 @@ namespace SharePointExplorer.Models
                 ShowMessage(string.Format(Resources.MsgSearchNotFound, obj), "Info");
                 return;
             }
-            var content = new SPSearchResultsItem(this,  list);
+            var site = target is SPSearchResultsItem ? target.Parent : target;
+            var content = new SPSearchResultsItem(this,  list, site as SPSiteItem);
             var old = this.Children.Where(x => x.Name == content.Name).FirstOrDefault();
             if (old != null) this.Children.Remove(old);
             this.Children.Insert(0, content);
@@ -224,7 +225,7 @@ namespace SharePointExplorer.Models
         {
             if (string.IsNullOrEmpty((string)obj)) return;
             var listAll = new List<SPSearchResultFileItem>();
-            foreach (SPSiteItem target in Children)
+            foreach (SPSiteItem target in Children.OfType<SPSiteItem>())
             {
                 var list = await target.Search(obj);
                 listAll.AddRange(list);
@@ -235,7 +236,7 @@ namespace SharePointExplorer.Models
                 ShowMessage(string.Format(Resources.MsgSearchNotFound, obj), "Info");
                 return;
             }
-            var content = new SPSearchResultsItem(this, listAll);
+            var content = new SPSearchResultsItem(this, listAll, null);
             var old = this.Children.Where(x => x.Name == content.Name).FirstOrDefault();
             if (old != null) this.Children.Remove(old);
             this.Children.Insert(0, content);

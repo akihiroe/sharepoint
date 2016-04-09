@@ -210,12 +210,7 @@ namespace SharePointExplorer.Models
             return  list;
         }
 
-        public ICommand CloseCommand { get { return CreateCommand(Close); } }
 
-        private void Close(object obj)
-        {
-            RootVM.Children.Remove(this);
-        }
         protected void Download(string ServerRelativeUrl, string localPath, long totalSize)
         {
             var temp = System.IO.Path.GetTempFileName();
