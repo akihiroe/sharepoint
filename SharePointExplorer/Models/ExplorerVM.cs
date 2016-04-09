@@ -80,7 +80,7 @@ namespace SharePointExplorer.Models
         public void Connect(string siteUrl, string user, string pass, bool isNew, string oldSiteUrl)
         {
             var root = new SPSiteItem(this, siteUrl, user, pass);
-            var data = Children.Cast<SPSiteItem>().Where(x => string.Equals(x.Name, oldSiteUrl, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            var data = Children.OfType<SPSiteItem>().Where(x => string.Equals(x.Name, oldSiteUrl, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
             if (data != null)
             {
                 if (isNew) throw new ApplicationException(Resources.MsgDuplicateConnection);
@@ -278,7 +278,7 @@ namespace SharePointExplorer.Models
 
         public async Task<SPTreeItem> FindItemByUrl(string url, bool ensure)
         {
-            foreach(var site in Children)
+            foreach(var site in Children.OfType<SPSiteItem>())
             {
                 if (url.StartsWith(site.SPUrl))
                 {

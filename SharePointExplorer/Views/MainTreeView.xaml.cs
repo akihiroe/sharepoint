@@ -74,7 +74,7 @@ namespace SharePointExplorer.Views
                 vm.UploadCommand.Execute(files);
             }
             var folder = e.Data.GetData(DataFormats.StringFormat) as string;
-            if (folder != null)
+            if (folder != null && folder != vm.SPUrl)
             {
                 vm.MoveFolderCommand.Execute(new string[] { folder });
             }

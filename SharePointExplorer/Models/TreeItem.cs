@@ -132,6 +132,10 @@ namespace SharePointExplorer.Models
             await EnsureChildren(true);            
         }
 
+        public void SetDirty()
+        {
+            this.LoadedChildren = false;
+        }
         
     }
 }

@@ -30,7 +30,6 @@
                     <Separator/>
                     <MenuItem Header="{x:Static properties:Resources.MsgCreateFolder}" Command="{Binding Path=CreateFolderCommand}" Visibility="{Binding Path=AvailableCreateFolder, Converter={StaticResource BooleanToVisibilityConverter}}"  />
                     <MenuItem Header="{x:Static properties:Resources.MsgRenameFolder}" Command="{Binding Path=RenameFolderEditCommand}" Visibility="{Binding Path=AvailableRenameFolder, Converter={StaticResource BooleanToVisibilityConverter}}"  />
-                    <MenuItem Header="{x:Static properties:Resources.MsgMove}" Command="{Binding Path=MoveFolderCommand}" Visibility="{Binding Path=AvailableMoveFolder, Converter={StaticResource BooleanToVisibilityConverter}}"  />
                     <MenuItem Header="{x:Static properties:Resources.MsgDelete}" Command="{Binding Path=DeleteFolderCommand}" Visibility="{Binding Path=AvailableDeleteFolder, Converter={StaticResource BooleanToVisibilityConverter}}"  />
                 </ContextMenu>
             </TreeView.Resources>

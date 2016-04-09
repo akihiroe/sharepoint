@@ -660,7 +660,6 @@ namespace SharePointExplorer.Models
 
         private async Task MoveToFolderSubAsync(string[] sourceUrls)
         {
-            var parentList = new List<SPFolderItem>();
             foreach (var sourceUrl in sourceUrls)
             {
                 var source = await RootVM.FindItemByUrl(sourceUrl, false);
@@ -673,19 +672,16 @@ namespace SharePointExplorer.Models
                 if (file != null)
                 {
                     var newParent = await file.MoveToFolderAsync(this.SPUrl);
-                    parentList.Add(newParent);
+                    newParent.SetDirty();
                 }
-            }
-            await EnsureChildren(true);
-            foreach (var parent in parentList.Distinct())
-            {
-                await parent.EnsureChildren(true);
             }
         }
 
         public async Task MoveToFolderAsync(string targetFolderUrl)
         {
-            if (targetFolderUrl.StartsWith(Context.Url))
+            var newParent = await RootVM.FindItemByUrl(GetParentFolder(targetFolderUrl), false);
+            if (newParent == null) throw new InvalidOperationException("can't load targetFolder");
+            if (newParent.Context.Url == Context.Url)
             {
                 Folder.MoveTo(targetFolderUrl);
                 Context.ExecuteQuery();
@@ -715,13 +711,8 @@ namespace SharePointExplorer.Models
                 }
                 if (!executed) throw new ApplicationException(Properties.Resources.MsgInvalidMoveTargetFolder);
             }
-            
-            var newParent = await RootVM.FindItemByUrl(targetFolderUrl, true);
-            if (newParent != null)
-            {
-                newParent.IsSelected = true;
-                await newParent.EnsureChildren(true);
-            }
+            newParent.IsSelected = true;
+            await newParent.EnsureChildren(true);
         }
 
         public override async Task<SPTreeItem> FindNodeByUrl(string url, bool ensure)

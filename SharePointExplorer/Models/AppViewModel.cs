@@ -109,7 +109,6 @@ namespace SharePointExplorer.Models
                 ProgressMessage = message;
                 TopViewModel.ProgressMessage = message;
             });
-            Debug.WriteLine(message);
         }
 
         protected virtual void ShowDialog(ViewModelBase vm, string title = null, ResizeMode resize = ResizeMode.NoResize)

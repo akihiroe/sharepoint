@@ -661,7 +661,7 @@ namespace SharePointExplorer.Models
             {
                 throw new InvalidOperationException("can't load target folder");
             }
-            if (targetFolderUrl.StartsWith(Context.Url))
+            if (newParent.Context.Url == Context.Url)
             {
                 File.MoveTo(targetFolderUrl + "/" + Name, MoveOperations.Overwrite);
                 Context.ExecuteQuery();

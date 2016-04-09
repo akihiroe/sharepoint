@@ -61,7 +61,7 @@ namespace SharePointExplorer.Models
         public SPSiteItem(ExplorerVM parent, string siteUrl, string user, string password)
             : base(null, null)
         {
-            this.siteUrl = siteUrl;
+            this.siteUrl = siteUrl.TrimEnd('/');
             this.user = user;
             this.password = password;
             this.explorer = parent;
