@@ -79,6 +79,8 @@ namespace SharePointExplorer.Models
 
         public void Connect(string siteUrl, string user, string pass, bool isNew, string oldSiteUrl)
         {
+            siteUrl = siteUrl.TrimEnd('/');
+            if (oldSiteUrl != null) oldSiteUrl = oldSiteUrl.TrimEnd('/');
             var root = new SPSiteItem(this, siteUrl, user, pass);
             var data = Children.OfType<SPSiteItem>().Where(x => string.Equals(x.Name, oldSiteUrl, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
             if (data != null)
@@ -88,7 +90,7 @@ namespace SharePointExplorer.Models
                 Children.Insert(Children.IndexOf(data), root);
                 Children.Remove(data);
 
-                var info = ExplorerSettings.Instance.Connections.Where(x => string.Equals(x.SiteUrl, oldSiteUrl, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                var info = ExplorerSettings.Instance.Connections.Where(x => string.Equals(x.SiteUrl.TrimEnd('/'), oldSiteUrl, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
                 info.User = user;
                 info.SiteUrl = siteUrl;
                 info.Password = Utils.EncryptedPassword(pass);
@@ -145,7 +147,7 @@ namespace SharePointExplorer.Models
                 {
                 }
                 Children.Remove(site);
-                var info = ExplorerSettings.Instance.Connections.Where(x=> x.SiteUrl == site.Name).FirstOrDefault();
+                var info = ExplorerSettings.Instance.Connections.Where(x=> x.SiteUrl.TrimEnd('/') == site.Name).FirstOrDefault();
                 if (info != null)
                 {
                     ExplorerSettings.Instance.Connections.Remove(info);
@@ -162,8 +164,8 @@ namespace SharePointExplorer.Models
             var site = obj as SPSiteItem;
             if (site != null)
             {
-                var info = ExplorerSettings.Instance.Connections.Where(x => string.Equals(x.SiteUrl, site.Name)).FirstOrDefault();
-                var dialog = new ConnectVM(this, false, info.SiteUrl, info.User);
+                var info = ExplorerSettings.Instance.Connections.Where(x => string.Equals(x.SiteUrl.TrimEnd('/'), site.Name)).FirstOrDefault();
+                var dialog = new ConnectVM(this, false, info.SiteUrl.TrimEnd('/'), info.User);
                 ShowDialog(dialog, "Connect");
                 ExplorerSettings.Instance.Save();
             }
