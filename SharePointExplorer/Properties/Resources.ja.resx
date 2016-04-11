@@ -192,6 +192,9 @@
   <data name="MsgDisconnect" xml:space="preserve">
     <value>切断</value>
   </data>
+  <data name="MsgDownload" xml:space="preserve">
+    <value>ダウンロード</value>
+  </data>
   <data name="MsgDownloading" xml:space="preserve">
     <value>{0} ダウンロード中</value>
   </data>
@@ -238,7 +241,7 @@
     <value>開く</value>
   </data>
   <data name="MsgOpenWebSite" xml:space="preserve">
-    <value>サイトを開く</value>
+    <value>Webサイトを開く</value>
   </data>
   <data name="MsgOwner" xml:space="preserve">
     <value>変更者</value>

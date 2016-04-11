@@ -138,10 +138,16 @@ namespace SharePointExplorer.Models
 
                 });}
         }
-        protected virtual Task DeleteFolder(object obj)
+        public virtual Task DeleteFolder(object obj)
         {
             return Task.Delay(0);
         }
+
+
+        public virtual ICommand DownloadFolderCommand { get { return CreateCommand((x) => { }); } }
+
+        public virtual ICommand UploadFolderCommand { get { return CreateCommand((x) => { }); } }
+
 
         public virtual bool AvailableRefresh { get { return true; } }
         public virtual bool AvailableOpenWebSite { get { return true; } }
@@ -153,6 +159,8 @@ namespace SharePointExplorer.Models
         public virtual bool AvailableMoveFolder { get { return false; } }
         public virtual bool AvailableDeleteFolder { get { return false; } }
 
+        public virtual bool AvailableDownloadFolder { get { return false; } }
+        public virtual bool AvailableUploadFolder { get { return false; } }
 
         public bool IsFolderEditing
         {

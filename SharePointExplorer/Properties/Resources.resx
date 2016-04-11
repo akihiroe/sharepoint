@@ -192,6 +192,9 @@
   <data name="MsgDisconnect" xml:space="preserve">
     <value>Disconnect</value>
   </data>
+  <data name="MsgDownload" xml:space="preserve">
+    <value>Download</value>
+  </data>
   <data name="MsgDownloading" xml:space="preserve">
     <value>{0} downloading.</value>
   </data>

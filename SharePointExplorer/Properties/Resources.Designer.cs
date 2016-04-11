@@ -286,6 +286,15 @@ namespace SharePointExplorer.Properties {
         }
         
         /// <summary>
+        ///   Download に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgDownload {
+            get {
+                return ResourceManager.GetString("MsgDownload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   {0} downloading. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string MsgDownloading {

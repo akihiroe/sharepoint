@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharePointExplorer.Models;
 using System.Windows;
+using System.IO;
 
 namespace SharePointExplorer.Tests
 {
@@ -21,8 +22,10 @@ namespace SharePointExplorer.Tests
         static SPSiteItem testSite;
         static SPDocumentLibraryItem testLib;
         static Models.SPFolderItem testFolder;
+        static Models.SPFolderItem testFolder2;
 
         static private string TestFileText = "Testファイル.txt";
+        static private string TestFolder = System.IO.Path.Combine(Environment.CurrentDirectory, "TestWork");
 
         [ClassInitialize]
         public static void SetupTestFolder(TestContext context)
@@ -35,8 +38,21 @@ namespace SharePointExplorer.Tests
             testLib.EnsureChildren().Wait();
             testFolder = (Models.SPFolderItem)testLib.Children.Where(x => x.Name == "TEST").First();
             testFolder.EnsureChildren().Wait();
+            var moveTest = testFolder.Children.OfType<SPFolderItem>().Where(x => x.Name == "MoveTest").FirstOrDefault();
+            if (moveTest != null)
+            {
+                moveTest.DeleteFolder(null).Wait();
+            }
+            testFolder2 = (Models.SPFolderItem)testFolder.Children.Where(x => x.Name == "SUBTest").First();
+            testFolder2.EnsureChildren().Wait();
+            if (!testFolder2.Children.Any(x=>x.Name == "MoveTest"))
+            {
+                var moveFolder = testFolder2.CreateFolderInternal("MoveTest");
+                moveFolder.UploadCommand.Execute(new string[] { TestFileText });
+            }
             System.IO.File.WriteAllText(TestFileText, "TEST キーワード " + DateTime.Now.ToString("yyyy/DD/mm HH:mm:ss"), System.Text.Encoding.UTF8);
             testFolder.UploadCommand.Execute(new string[] { TestFileText });
+            if (!Directory.Exists(TestFolder)) Directory.CreateDirectory(TestFolder);
         }
 
         [TestMethod]
@@ -128,5 +144,21 @@ namespace SharePointExplorer.Tests
             Assert.AreEqual("", testFolder.Message);
         }
 
+
+        [TestMethod]
+        public void DownloadUploadFolderTest()
+        {
+            testFolder2.DownloadFolderCommand.Execute(TestFolder);
+            Assert.AreEqual("", testFolder.Message);
+            testFolder2.UploadFolderCommand.Execute(TestFolder);
+            Assert.AreEqual("", testFolder2.Message);
+        }
+
+        [TestMethod]
+        public void MoveFolderTest()
+        {
+            testFolder.MoveFolderCommand.Execute(new string[] { testFolder2.SPUrl + "/MoveTest" });
+            Assert.AreEqual("", testFolder.Message);
+        }
     }
 }

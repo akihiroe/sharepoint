@@ -288,5 +288,20 @@ namespace SharePointExplorer.Models
 
             return null;
         }
+
+        protected virtual string ShowFolderDailog()
+        {
+            var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            var result = dialog.ShowDialog();
+            if (result != System.Windows.Forms.DialogResult.OK)
+            {
+                return null;
+            }
+            else
+            {
+                return dialog.SelectedPath;
+            }
+
+        }
     }
 }

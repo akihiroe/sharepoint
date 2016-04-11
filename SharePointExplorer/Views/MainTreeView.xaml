@@ -24,13 +24,16 @@
                     <MenuItem Header="{x:Static properties:Resources.MsgOpenWebSite}" Command="{Binding Path=OpenWebSiteCommand}" Visibility="{Binding Path=AvailableOpenWebSite, Converter={StaticResource BooleanToVisibilityConverter}}"  />
                     <MenuItem Header="{x:Static properties:Resources.MsgCopyUrlToClipBoard}" Command="{Binding Path=CopyUrlToClipboardCommand}"  IsEnabled="{Binding Path=CanCopyUrlToClipboard}"  />
                     <Separator/>
-                    <MenuItem Header="{x:Static properties:Resources.MsgEditConnection}" Command="{Binding Path=EditConnectionCommand}" Visibility="{Binding Path=AvailableEditConnection, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    <MenuItem Header="{x:Static properties:Resources.MsgDisconnect}" Command="{Binding Path=DisconnectCommand}" Visibility="{Binding Path=AvailableDisconnect, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    <MenuItem Header="{x:Static properties:Resources.MsgClearCache}" Command="{Binding Path=ClearCacheCommand}" IsEnabled="{Binding Path=AvailableClearCache}" />
+                    <MenuItem Header="{x:Static properties:Resources.MsgDownload}" Command="{Binding Path=DownloadFolderCommand}"  IsEnabled="{Binding Path=AvailableDownloadFolder}"  />
+                    <MenuItem Header="{x:Static properties:Resources.MsgUpload}" Command="{Binding Path=UploadFolderCommand}"  IsEnabled="{Binding Path=AvailableUploadFolder}"  />
                     <Separator/>
                     <MenuItem Header="{x:Static properties:Resources.MsgCreateFolder}" Command="{Binding Path=CreateFolderCommand}" Visibility="{Binding Path=AvailableCreateFolder, Converter={StaticResource BooleanToVisibilityConverter}}"  />
                     <MenuItem Header="{x:Static properties:Resources.MsgRenameFolder}" Command="{Binding Path=RenameFolderEditCommand}" Visibility="{Binding Path=AvailableRenameFolder, Converter={StaticResource BooleanToVisibilityConverter}}"  />
                     <MenuItem Header="{x:Static properties:Resources.MsgDelete}" Command="{Binding Path=DeleteFolderCommand}" Visibility="{Binding Path=AvailableDeleteFolder, Converter={StaticResource BooleanToVisibilityConverter}}"  />
+                    <Separator/>
+                    <MenuItem Header="{x:Static properties:Resources.MsgEditConnection}" Command="{Binding Path=EditConnectionCommand}" Visibility="{Binding Path=AvailableEditConnection, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <MenuItem Header="{x:Static properties:Resources.MsgDisconnect}" Command="{Binding Path=DisconnectCommand}" Visibility="{Binding Path=AvailableDisconnect, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <MenuItem Header="{x:Static properties:Resources.MsgClearCache}" Command="{Binding Path=ClearCacheCommand}" IsEnabled="{Binding Path=AvailableClearCache}" />
                 </ContextMenu>
             </TreeView.Resources>
             <TreeView.ItemTemplate>

@@ -597,7 +597,7 @@ namespace SharePointExplorer.Models
             CreateFolderInternal(newName);
         }
 
-        private SPFolderItem CreateFolderInternal(string newName)
+        public SPFolderItem CreateFolderInternal(string newName)
         {
             var newFolder = Folder.Folders.Add(newName);
             Context.ExecuteQuery();
@@ -640,25 +640,12 @@ namespace SharePointExplorer.Models
         {
             get {
                 return CreateCommand(x => {
-                    if (x == null)
-                    {
-                        var vm = new MoveFolderVM(this);
-                        vm.MovePath = this.SPUrl;
-                        ShowDialog(vm, Properties.Resources.MsgMove);
-                        if (vm.DialogResult)
-                        {
-                            ExecuteActionAsync(MoveToFolderAsync(vm.MovePath), null, null, true);
-                        }
-                    }
-                    else
-                    {
-                        ExecuteActionAsync(MoveToFolderSubAsync((string[])x), null, null, true);
-                    }
-                } );
+                    ExecuteActionAsync(MoveFromFolderSubAsync((string[])x), null, null, true);
+                });
             }
         }
 
-        private async Task MoveToFolderSubAsync(string[] sourceUrls)
+        private async Task MoveFromFolderSubAsync(string[] sourceUrls)
         {
             foreach (var sourceUrl in sourceUrls)
             {
@@ -732,7 +719,7 @@ namespace SharePointExplorer.Models
             get { return true; }
         }
 
-        protected override async Task DeleteFolder(object obj)
+        public override async Task DeleteFolder(object obj)
         {
             await Task.Run(() => {
                 Folder.Recycle();
@@ -779,6 +766,81 @@ namespace SharePointExplorer.Models
             }
         }
 
+        public override ICommand DownloadFolderCommand
+        {
+            get
+            {
+                return CreateCommand((x) => {
+
+                    var targetPath = (x as string) ?? ShowFolderDailog();
+                    if (targetPath == null) return;
+                    ExecuteActionAsync(DownloadFolderAsync(targetPath), null, null, true);
+
+                });
+            }
+        }
+
+        private async Task DownloadFolderAsync(string targetFolder)
+        {
+            if (targetFolder == null) return;
+            if (!Directory.Exists(targetFolder)) Directory.CreateDirectory(targetFolder);
+            await EnsureChildren();
+            await Task.Run(() => {
+                foreach (var file in Items)
+                {
+                    if (IsCancelled) throw new OperationCanceledException();
+                    file.Download(System.IO.Path.Combine(targetFolder, file.Name));
+                }
+            });
+            foreach (var folder in Children.OfType<SPFolderItem>())
+            {
+                if (IsCancelled) throw new OperationCanceledException();
+                await folder.DownloadFolderAsync(System.IO.Path.Combine(targetFolder, folder.Name));
+            }
+        }
+        public override bool AvailableDownloadFolder { get { return true; } }
+
+        public override ICommand UploadFolderCommand
+        {
+            get
+            {
+                return CreateCommand((x) => {
+
+                    var targetPath = (x as string) ?? ShowFolderDailog();
+                    if (targetPath == null) return;
+                    ExecuteActionAsync(UploadFolderAsync(targetPath), null, null, true);
+
+                });
+            }
+        }
+
+        private async Task UploadFolderAsync(string targetFolder)
+        {
+            if (targetFolder == null) return;
+            await EnsureChildren(true);
+            foreach (var file in Directory.GetFiles(targetFolder))
+            {
+                if (IsCancelled) throw new OperationCanceledException();
+                var relativePath = file.Substring(targetFolder.Length).Replace("\\", "/");
+                await UploadSub(file, Path+relativePath);
+            }
+
+            foreach (var dire in Directory.GetDirectories(targetFolder))
+            {
+                if (IsCancelled) throw new OperationCanceledException();
+                var newDirename = System.IO.Path.GetFileName(dire);
+                var targetChild = Children.OfType<SPFolderItem>().Where(x => x.Name == newDirename).FirstOrDefault() ;
+                if (targetChild == null)
+                {
+                    targetChild = CreateFolderInternal(newDirename);
+                }
+                await targetChild.UploadFolderAsync(dire);
+            }
+        }
+
+        
+
+        public override bool AvailableUploadFolder { get { return true; } }
 
         public int FileNameWidth
         {
