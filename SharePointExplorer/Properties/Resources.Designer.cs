@@ -430,6 +430,15 @@ namespace SharePointExplorer.Properties {
         }
         
         /// <summary>
+        ///   Open as explorer に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgOpenAsExplorer {
+            get {
+                return ResourceManager.GetString("MsgOpenAsExplorer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Open web site に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string MsgOpenWebSite {

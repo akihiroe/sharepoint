@@ -839,8 +839,32 @@ namespace SharePointExplorer.Models
         }
 
         
-
         public override bool AvailableUploadFolder { get { return true; } }
+
+
+        public override ICommand OpenAsExplorerCommand { get { return CreateCommand(OpenAsExplorer); } }
+
+        private void OpenAsExplorer(object arg)
+        {
+            ProcessStartInfo pInfo;
+            Process p;
+            pInfo = new ProcessStartInfo("cmd", @"/c net use " + SPUrl);
+            pInfo.CreateNoWindow = true; 
+            pInfo.UseShellExecute = true; 
+            p = Process.Start(pInfo);
+            p.WaitForExit(5000); 
+            p.Close();
+
+            var spUri = new Uri(SPUrl);
+            pInfo = new ProcessStartInfo("\\\\" + spUri.Host + "@SSL" + spUri.LocalPath.Replace("/", "\\"));
+            pInfo.CreateNoWindow = true;
+            pInfo.UseShellExecute = true;
+            Process.Start(pInfo);
+        }
+
+        public override bool AvailableOpenAsExplorer { get { return true; } }
+
+
 
         public int FileNameWidth
         {

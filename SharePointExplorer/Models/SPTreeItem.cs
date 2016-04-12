@@ -148,9 +148,11 @@ namespace SharePointExplorer.Models
 
         public virtual ICommand UploadFolderCommand { get { return CreateCommand((x) => { }); } }
 
+        public virtual ICommand OpenAsExplorerCommand { get { return CreateCommand((x) => { }); } }
 
         public virtual bool AvailableRefresh { get { return true; } }
         public virtual bool AvailableOpenWebSite { get { return true; } }
+        public virtual bool AvailableOpenAsExplorer { get { return true; } }
         public virtual bool AvailableDisconnect { get { return false; } }
         public virtual bool AvailableEditConnection { get { return false; } }
         public virtual bool AvailableClearCache { get { return Context != null; } }

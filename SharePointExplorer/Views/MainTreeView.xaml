@@ -23,6 +23,7 @@
                     <MenuItem Header="{x:Static properties:Resources.MsgRefresh}" Command="{Binding Path=RefreshCommand}" IsEnabled="{Binding Path=AvailableRefresh}" />
                     <MenuItem Header="{x:Static properties:Resources.MsgOpenWebSite}" Command="{Binding Path=OpenWebSiteCommand}" Visibility="{Binding Path=AvailableOpenWebSite, Converter={StaticResource BooleanToVisibilityConverter}}"  />
                     <MenuItem Header="{x:Static properties:Resources.MsgCopyUrlToClipBoard}" Command="{Binding Path=CopyUrlToClipboardCommand}"  IsEnabled="{Binding Path=CanCopyUrlToClipboard}"  />
+                    <MenuItem Header="{x:Static properties:Resources.MsgOpenAsExplorer}" Command="{Binding Path=OpenAsExplorerCommand}" Visibility="{Binding Path=AvailableOpenAsExplorer, Converter={StaticResource BooleanToVisibilityConverter}}"  />
                     <Separator/>
                     <MenuItem Header="{x:Static properties:Resources.MsgDownload}" Command="{Binding Path=DownloadFolderCommand}"  IsEnabled="{Binding Path=AvailableDownloadFolder}"  />
                     <MenuItem Header="{x:Static properties:Resources.MsgUpload}" Command="{Binding Path=UploadFolderCommand}"  IsEnabled="{Binding Path=AvailableUploadFolder}"  />

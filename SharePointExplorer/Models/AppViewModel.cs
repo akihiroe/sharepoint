@@ -138,6 +138,7 @@ namespace SharePointExplorer.Models
 
         protected virtual void ShowMessage(string message, string caption)
         {
+            Debug.WriteLine("MessageBox:" + message);
             if (Application.Current == null) return;
             var active = Application.Current.Windows.OfType<Window>().SingleOrDefault(y => y.IsActive);
             if (active == null)
@@ -247,7 +248,7 @@ namespace SharePointExplorer.Models
 
         protected override void OnCommandExecuted(ICommand command, Exception error)
         {
-            base.OnCommandExecuted(command, error);
+            base.OnCommandExecuted(command, null);
             Trace.WriteLine(error);
             if (error != null) ShowMessage(error.Message, "ERROR");
         }
