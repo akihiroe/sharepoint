@@ -156,6 +156,9 @@
   <data name="MsgConfirmPrurgeCache" xml:space="preserve">
     <value>local {0} file was edited. Are you sure you want to delete it ?</value>
   </data>
+  <data name="MsgConfirmSaveScript" xml:space="preserve">
+    <value>The specified JavaScript are all run by the page . Are you sure you want to set ?</value>
+  </data>
   <data name="MsgConfirmUpload" xml:space="preserve">
     <value>Local file has been modified . Are you sure that you want to upload before completing the editing ?</value>
   </data>
@@ -200,6 +203,9 @@
   </data>
   <data name="MsgDuplicateConnection" xml:space="preserve">
     <value>Connection already exists.</value>
+  </data>
+  <data name="MsgEditCommonScript" xml:space="preserve">
+    <value>Edit site collection script</value>
   </data>
   <data name="MsgEditConnection" xml:space="preserve">
     <value>Edit connection</value>

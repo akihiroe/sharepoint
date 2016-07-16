@@ -178,6 +178,15 @@ namespace SharePointExplorer.Properties {
         }
         
         /// <summary>
+        ///   The specified JavaScript are all run by the page . Are you sure you want to set ? に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgConfirmSaveScript {
+            get {
+                return ResourceManager.GetString("MsgConfirmSaveScript", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Local file has been modified . Are you sure that you want to upload before completing the editing ? に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string MsgConfirmUpload {
@@ -309,6 +318,15 @@ namespace SharePointExplorer.Properties {
         public static string MsgDuplicateConnection {
             get {
                 return ResourceManager.GetString("MsgDuplicateConnection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Edit site collection script に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgEditCommonScript {
+            get {
+                return ResourceManager.GetString("MsgEditCommonScript", resourceCulture);
             }
         }
         

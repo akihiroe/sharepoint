@@ -126,6 +126,10 @@ namespace SharePointExplorer.Views
             {
                 return;
             }
+
+            var fe = e.OriginalSource as FrameworkElement;
+            if (fe == null || !(fe.DataContext is SPFolderItem) || !((SPFolderItem)fe.DataContext).LoadedChildren ) return;
+
             var point = e.GetPosition(this);
             if (CheckDistance(point, _foldersOrigin))
             {
@@ -145,8 +149,8 @@ namespace SharePointExplorer.Views
 
         private bool CheckDistance(Point x, Point y)
         {
-            return Math.Abs(x.X - y.X) >= SystemParameters.MinimumHorizontalDragDistance ||
-                Math.Abs(x.Y - y.Y) >= SystemParameters.MinimumVerticalDragDistance;
+            return Math.Abs(x.X - y.X) >= SystemParameters.MinimumHorizontalDragDistance * 4 ||
+                Math.Abs(x.Y - y.Y) >= SystemParameters.MinimumVerticalDragDistance * 4;
         }
     }
 }

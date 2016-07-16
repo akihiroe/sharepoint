@@ -124,7 +124,7 @@ namespace SharePointExplorer.Models
             {
                 await content.EnsureChildren();
                 content.IsExpanded = true;
-                this.CurrentContent = ViewUtil.BuildContent(content);
+                this.CurrentContent = ViewUtil.BuildContent(content, false);
             }
             else
             {
@@ -215,7 +215,7 @@ namespace SharePointExplorer.Models
             if (old != null) this.Children.Remove(old);
             this.Children.Insert(0, content);
             content.IsSelected = true;
-            this.CurrentContent = ViewUtil.BuildContent(content);
+            this.CurrentContent = ViewUtil.BuildContent(content, false);
         }
 
         public ICommand SearchAllCommand
@@ -229,8 +229,16 @@ namespace SharePointExplorer.Models
             var listAll = new List<SPSearchResultFileItem>();
             foreach (SPSiteItem target in Children.OfType<SPSiteItem>())
             {
-                var list = await target.Search(obj);
-                listAll.AddRange(list);
+                try
+                {
+                    var list = await target.Search(obj);
+                    listAll.AddRange(list);
+                }
+                catch (Exception ex)
+                {
+
+                    Message = ex.Message;
+                }
                 
             }
             if (listAll.Count == 0)
@@ -243,7 +251,7 @@ namespace SharePointExplorer.Models
             if (old != null) this.Children.Remove(old);
             this.Children.Insert(0, content);
             content.IsSelected = true;
-            this.CurrentContent = ViewUtil.BuildContent(content);
+            this.CurrentContent = ViewUtil.BuildContent(content, false);
         }
 
 

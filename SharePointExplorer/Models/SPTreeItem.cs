@@ -150,6 +150,11 @@ namespace SharePointExplorer.Models
 
         public virtual ICommand OpenAsExplorerCommand { get { return CreateCommand((x) => { }); } }
 
+        public ICommand EditUserScriptCommand { get { return CreateCommand(EditUserScript); } }
+        protected virtual void EditUserScript(object obj)
+        {
+        }
+
         public virtual bool AvailableRefresh { get { return true; } }
         public virtual bool AvailableOpenWebSite { get { return true; } }
         public virtual bool AvailableOpenAsExplorer { get { return true; } }
@@ -163,6 +168,8 @@ namespace SharePointExplorer.Models
 
         public virtual bool AvailableDownloadFolder { get { return false; } }
         public virtual bool AvailableUploadFolder { get { return false; } }
+
+        public virtual bool AvailableEditUserScript { get { return false; } }
 
         public bool IsFolderEditing
         {

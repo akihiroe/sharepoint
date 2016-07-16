@@ -374,7 +374,13 @@ namespace SharePointExplorer.Models
         }
         public bool CanPaste
         {
-            get { return SelectedFile != null; }
+            get
+            {
+                IDataObject dataObj = Clipboard.GetDataObject() as IDataObject;
+                if (dataObj == null) return false;
+                var stream = (MemoryStream)dataObj.GetData(NativeMethods.CFSTR_PREFERREDDROPEFFECT, true);
+                return stream != null;
+            }
         }
         private async Task Paste(object e)
         {
@@ -394,9 +400,26 @@ namespace SharePointExplorer.Models
                         {
                             await Upload(files);
                         }
+                        else if (dataObj.GetDataPresent(DataFormats.Serializable))
+                        {
+                            files = GetDataObjectAsPaths(dataObj);
+                            await CopyFiles(files);
+                        }
                     }
                 }
             }
+        }
+
+        private string[] GetDataObjectAsPaths(IDataObject dataObj)
+        {
+            var st = dataObj.GetData(DataFormats.Serializable) as MemoryStream;
+            if (st != null)
+            {
+                BinaryFormatter bin = new BinaryFormatter();
+                var files = (string[])bin.Deserialize(st);
+                return files;
+            }
+            return null;
         }
 
         public ICommand SaveCommand
@@ -413,6 +436,12 @@ namespace SharePointExplorer.Models
                 });
             }
         }
+
+        public ICommand CopyUrlToClipboardCommandForItem
+        {
+            get { return SelectedFile.CopyUrlToClipboardCommand; }
+        }
+
         public bool CanSave
         {
             get { return SelectedFile != null; }
@@ -564,7 +593,10 @@ namespace SharePointExplorer.Models
 
             virtualFileDataObject.SetData(SelectedItems);
 
-
+            MemoryStream memo = new MemoryStream(4);
+            byte[] bytes = new byte[] { (byte)(cut ? 2 : 5), 0, 0, 0 };
+            memo.Write(bytes, 0, bytes.Length);
+            virtualFileDataObject.SetData((short)(DataFormats.GetDataFormat(NativeMethods.CFSTR_PREFERREDDROPEFFECT).Id), memo.ToArray());
             using (MemoryStream mem = new MemoryStream())
             {
                 BinaryFormatter bin = new BinaryFormatter();
@@ -573,6 +605,8 @@ namespace SharePointExplorer.Models
                 var paths = (short)(DataFormats.GetDataFormat(DataFormats.Serializable).Id);
                 virtualFileDataObject.SetData(paths, mem.ToArray());
             }
+
+
             return virtualFileDataObject;
         }
 
@@ -848,7 +882,9 @@ namespace SharePointExplorer.Models
         {
             ProcessStartInfo pInfo;
             Process p;
-            pInfo = new ProcessStartInfo("cmd", @"/c net use " + SPUrl);
+            var root = this.FindRoot() as SPSiteItem;
+            if (root == null) return;
+            pInfo = new ProcessStartInfo("cmd", @"/c net use " + SPUrl + " /user:" + root.User + " " + root.Password);
             pInfo.CreateNoWindow = true; 
             pInfo.UseShellExecute = true; 
             p = Process.Start(pInfo);
@@ -965,5 +1001,40 @@ namespace SharePointExplorer.Models
             }
         }
 
+        public async Task CopyFiles(string[] files)
+        {
+            await EnsureChildren(true);
+
+            //file
+            foreach (var file in files)
+            {
+                if (IsCancelled)
+                {
+                    throw new OperationCanceledException();
+                }
+                var sourceFile = await RootVM.FindItemByUrl(file, true) as SPFileItem;
+                if (sourceFile == null) continue;
+
+                var tempFile = System.IO.Path.GetTempFileName();
+                try
+                {
+                    await Task.Run(() =>
+                    {
+                        sourceFile.Download(tempFile);
+                    });
+                    if (IsCancelled)
+                    {
+                        throw new OperationCanceledException();
+                    }
+                    var targetPath = Folder.ServerRelativeUrl + "/" + sourceFile.Name;
+                    await UploadSub(tempFile, targetPath);
+                }
+                finally
+                {
+                    System.IO.File.Delete(tempFile);
+
+                }
+            }
+        }
     }
 }

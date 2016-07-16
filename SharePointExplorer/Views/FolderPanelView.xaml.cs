@@ -179,13 +179,17 @@ namespace SharePointExplorer.Views
                 return;
             }
 
+            var fe = e.OriginalSource as FrameworkElement;
+            if (fe == null || !(fe.DataContext is SPFileItem)) return;
+
+
             // Get the current mouse position
             Point mousePos = e.GetPosition(null);
             Vector diff = startPoint - mousePos;
 
             if (e.LeftButton == MouseButtonState.Pressed &&
-                Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
-                Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
+                Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance * 4 ||
+                Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance * 4)
             {
                 var vm = this.DataContext as SPFolderItem;
                 var dragData = vm.CreateFilesDataObject(false);

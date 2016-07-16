@@ -97,9 +97,15 @@
                     <ColumnDefinition Width="7*"/>
                 </Grid.ColumnDefinitions>
             </Grid>
+            <StatusBar Grid.Row="2">
+                <StatusBarItem DockPanel.Dock="Left">
+                    <TextBlock FontSize="12px" Text="{Binding Path=Message}" ></TextBlock>
+                </StatusBarItem>
+            </StatusBar>
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />

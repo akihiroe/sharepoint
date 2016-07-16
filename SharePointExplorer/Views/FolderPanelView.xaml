@@ -13,7 +13,7 @@
         <ContextMenu x:Key="listViewMenu" >
             <MenuItem Header="{x:Static properties:Resources.MsgOpen}" Command="{Binding Path=OpenCommand}" IsEnabled="{Binding Path=CanOpen}" />
             <!--<MenuItem Header="{x:Static properties:Resources.MsgShowUrl}" Command="{Binding Path=ShowUrlCommand}"  IsEnabled="{Binding Path=CanShowUrl}"  />-->
-            <MenuItem Header="{x:Static properties:Resources.MsgCopyUrlToClipBoard}" Command="{Binding Path=CopyUrlToClipboardCommand}"  IsEnabled="{Binding Path=CanCopyUrlToClipboard}"  />
+            <MenuItem Header="{x:Static properties:Resources.MsgCopyUrlToClipBoard}" Command="{Binding Path=CopyUrlToClipboardCommandForItem}"  IsEnabled="{Binding Path=CanCopyUrlToClipboard}"  />
             <Separator/>
             <MenuItem Header="{x:Static properties:Resources.MsgSave}" Command="{Binding Path=SaveCommand}" IsEnabled="{Binding Path=CanSave}" />
             <MenuItem Header="{x:Static properties:Resources.MsgUpload}" Command="{Binding Path=UploadCacheCommand}" IsEnabled="{Binding Path=CanUploadCache}" />
@@ -31,7 +31,7 @@
         </ContextMenu>
     </UserControl.Resources>
     <Grid>
-        <ListView Name="Items" AllowDrop="True" SelectionMode="Extended" 
+        <local:AppListView x:Name="Items" AllowDrop="True" SelectionMode="Extended" 
                           SelectedItem="{Binding Path=SelectedFile}"
                           ItemsSource="{Binding Path=Items,Mode=OneWay}" 
                           VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
@@ -42,16 +42,16 @@
                           Drop="Items_Drop" 
                           PreviewMouseLeftButtonDown="Items_PreviewMouseLeftButtonDown" 
                           MouseMove="Items_MouseMove" PreviewMouseUp="Items_PreviewMouseUp" >
-            <ListView.CommandBindings>
-            </ListView.CommandBindings>
-            <ListView.InputBindings>
+            <local:AppListView.CommandBindings>
+            </local:AppListView.CommandBindings>
+            <local:AppListView.InputBindings>
                 <KeyBinding Key="DELETE" Command="{Binding DeleteCommand}" />
                 <KeyBinding Key="C" Modifiers="Control" Command="{Binding CopyCommand}"></KeyBinding>
                 <!--<KeyBinding Key="X" Modifiers="Control" Command="{Binding CutCommand}"></KeyBinding>-->
                 <KeyBinding Key="V" Modifiers="Control" Command="{Binding PasteCommand}"></KeyBinding>
                 <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}"></KeyBinding>
-            </ListView.InputBindings>
-            <ListView.View>
+            </local:AppListView.InputBindings>
+            <local:AppListView.View>
                 <GridView>
                     <GridViewColumn Header="{x:Static properties:Resources.MsgName}" Width="{Binding FileNameWidth, Mode=TwoWay}">
                         <GridViewColumn.CellTemplate>
@@ -105,15 +105,15 @@
 
 
                 </GridView>
-            </ListView.View>
-            <ListView.ItemContainerStyle>
+            </local:AppListView.View>
+            <local:AppListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}">
                     <!--<Setter Property="ContextMenu" Value="{StaticResource listViewItemMenu}"/>-->
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                     <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
                 </Style>
-            </ListView.ItemContainerStyle>
-        </ListView>
+            </local:AppListView.ItemContainerStyle>
+        </local:AppListView>
 
         
 

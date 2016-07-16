@@ -97,10 +97,18 @@ namespace SharePointExplorer.Models
         public string Message
         {
             get { return _message; }
-            set { _message = value; OnPropertyChanged("Message"); }
+            set { _message = value; OnPropertyChanged("Message"); lastupdateMessage = DateTime.Now; }
         }
         private string _message;
+        private DateTime lastupdateMessage = DateTime.MinValue;
 
+        public void ClearOldMessage()
+        {
+            if (lastupdateMessage.AddSeconds(10) < DateTime.Now)
+            {
+                Message = "";
+            }
+        }
 
 
         protected void NotifyProgressMessage(string message)
@@ -113,7 +121,7 @@ namespace SharePointExplorer.Models
 
         protected virtual void ShowDialog(ViewModelBase vm, string title = null, ResizeMode resize = ResizeMode.NoResize)
         {
-            var view = (WpfWindowView)ViewUtil.BuildView(vm, true);
+            var view = (WpfWindowView)ViewUtil.BuildView(vm, false);
             if (title != null) view.Window.Title = title;
             view.Window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             var active = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
@@ -168,6 +176,7 @@ namespace SharePointExplorer.Models
         {
             SetBusy(message,isBusy, canCancel, cancelConfirmMessage);
 
+            ClearOldMessage();
 
             if (ExecuteActionAsyncMode)
             {

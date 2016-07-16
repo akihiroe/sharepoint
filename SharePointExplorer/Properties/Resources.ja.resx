@@ -156,6 +156,9 @@
   <data name="MsgConfirmPrurgeCache" xml:space="preserve">
     <value>ローカルキャッシュ {0} ファイルは編集されています。削除してよろしいですか ?</value>
   </data>
+  <data name="MsgConfirmSaveScript" xml:space="preserve">
+    <value>指定したJavaScriptはすべてページで実行されます。よろしいでしょうか？</value>
+  </data>
   <data name="MsgConfirmUpload" xml:space="preserve">
     <value>ローカルファイルが修正されています。編集を完了する前にアップロードしますか？</value>
   </data>
@@ -200,6 +203,9 @@
   </data>
   <data name="MsgDuplicateConnection" xml:space="preserve">
     <value>既に接続があります</value>
+  </data>
+  <data name="MsgEditCommonScript" xml:space="preserve">
+    <value>サイトコレクション共通スクリプト編集</value>
   </data>
   <data name="MsgEditConnection" xml:space="preserve">
     <value>接続の編集</value>

@@ -8,6 +8,7 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ViewMaker;
 using ViewMaker.Core;
 
 namespace SharePointExplorer.Models
@@ -15,6 +16,8 @@ namespace SharePointExplorer.Models
     [View(typeof(SPSiteView))]
     public class SPSiteItem : SPTreeItem, IDisposable
     {
+        private string userScriptName = "SharepointExplorerUserScript";
+
         public override string Name
         {
             get { return siteUrl; }
@@ -33,7 +36,7 @@ namespace SharePointExplorer.Models
             {
                 if (_context == null)
                 {
-                    _context = CreateContext(siteUrl, user, password);
+                    _context = CreateContext(siteUrl, User, Password);   
                     OnPropertyChanged("AvailableClearCache");
                 }
                 return _context;
@@ -41,6 +44,17 @@ namespace SharePointExplorer.Models
         }
         private ClientContext _context;
         private string siteUrl;
+        public string Password
+        {
+            get { return password; }
+            set { password = value; }
+        }
+
+        public string User
+        {
+            get { return user; }
+            set { user = value; }
+        }
         private string user;
         private string password;
 
@@ -62,8 +76,8 @@ namespace SharePointExplorer.Models
             : base(null, null)
         {
             this.siteUrl = siteUrl.TrimEnd('/');
-            this.user = user;
-            this.password = password;
+            this.User = user;
+            this.Password = password;
             this.explorer = parent;
         }
 
@@ -149,30 +163,74 @@ namespace SharePointExplorer.Models
 
         public override bool AvailableEditConnection { get { return true; } }
 
+        protected override void EditUserScript(object obj)
+        {
+            var dialog = new ScriptEditorVM();
+            dialog.Code = GetUserScript();
+            this.ShowDialog(dialog, "Editor");
+            if (dialog.DialogResult)
+            {
+                if (!string.IsNullOrWhiteSpace(dialog.Code) && this.Confirm("Confirm", Properties.Resources.MsgConfirmSaveScript))
+                {
+                    SetUserScript(dialog.Code);
+                }
+            }
+        }
+
+        private string GetUserScript()
+        {
+            //var webObj = _context.Web;// _context.Site.RootWeb;
+            //Context.Load(webObj, w => w.EffectiveBasePermissions);
+            //Context.ExecuteQuery();
+            var userCustomActions = Context.Site.UserCustomActions;
+
+            Context.Load(userCustomActions);
+            Context.ExecuteQuery();
+            var action = userCustomActions.Where(x => x.Title == userScriptName).FirstOrDefault();
+            if (action == null) return null;
+            return action.ScriptBlock;
+        }
+
+        private void SetUserScript(string script)
+        {
+            //var webObj = _context.Web;// _context.Site.RootWeb;
+            //Context.Load(webObj, w => w.EffectiveBasePermissions);
+            //Context.ExecuteQuery();
+            var userCustomActions = Context.Site.UserCustomActions;
+
+            Context.Load(userCustomActions);
+            Context.ExecuteQuery();
+            var action = userCustomActions.Where(x => x.Title == userScriptName).FirstOrDefault();
+            if (action == null)
+            {
+                action = userCustomActions.Add();
+                action.Location = "ScriptLink";
+                action.Title = userScriptName; ;
+            }
+            else
+            {
+                //空の場合削除する
+                if (string.IsNullOrWhiteSpace(script))
+                {
+
+                    action.DeleteObject();
+                    Context.Load(action);
+                    Context.ExecuteQuery();
+                    return;
+                }
+            }
+            action.ScriptBlock = script;
+            action.Sequence = 1000;
+            action.Update();
+            Context.ExecuteQuery();
+        }
+
+        public override bool AvailableEditUserScript { get { return true; } }
+
         public void Dispose()
         {
             Context.Dispose();
         }
-
-        //public override bool IsBusy
-        //{
-        //    get { return base.IsBusy; }
-        //    set
-        //    {
-        //        base.IsBusy = value;
-        //        explorer.IsBusy = value;
-        //    }
-        //}
-
-        //public override bool CanCanceled
-        //{
-        //    get { return base.CanCanceled; }
-        //    set
-        //    {
-        //        base.CanCanceled = value;
-        //        explorer.CanCanceled = value;
-        //    }
-        //}
 
         public override ExplorerVM RootVM
         {
@@ -183,5 +241,6 @@ namespace SharePointExplorer.Models
         {
             get { return siteUrl; }
         }
+
     }
 }

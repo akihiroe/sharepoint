@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="SharePointExplorer.Views.ScriptEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SharePointExplorer.Views"
+             mc:Ignorable="d" 
+             Width="400" Height="300">
+    <Grid>
+        <ContentControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:system="clr-namespace:System;assembly=mscorlib" IsTabStop="False">
+            <ContentControl.Resources>
+                <ResourceDictionary>
+                    <ResourceDictionary.MergedDictionaries>
+                        <ResourceDictionary Source="/ViewMaker.Core;component/wpf/wpfgenericresource.xaml" />
+                        <ResourceDictionary Source="/ViewMaker.Core;component/wpf/wpferrorstyleresource.xaml" />
+                    </ResourceDictionary.MergedDictionaries>
+                </ResourceDictionary>
+            </ContentControl.Resources>
+            <Grid Name="ScriptEditorVM" DataContext="{Binding Mode=OneWay}">
+                <Grid Name="ScriptEditorVMDataPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="0" Grid.Column="0">
+                    <TextBox Name="Code" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding Path=Code, Mode=TwoWay, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, NotifyOnValidationError=True }" VerticalAlignment="Stretch" Grid.Row="0" Grid.Column="0" />
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                </Grid>
+                <StackPanel Name="ScriptEditorVMButtonPanel" Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column="0">
+                    <Button Name="SaveCommand" Command="{Binding Path=SaveCommand,Mode=OneWay}" Margin="5">Save</Button>
+                    <Button Name="CloseCommand" Command="{Binding Path=CloseCommand,Mode=OneWay}" Margin="5">Close</Button>
+                </StackPanel>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+            </Grid>
+        </ContentControl>
+    </Grid>
+</UserControl>
