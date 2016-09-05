@@ -84,6 +84,23 @@ namespace SharePointExplorer.Models
         private string _progressMessage;
 
         /// <summary>
+        /// 処理結果メッセージ
+        /// </summary>
+        public string LogMessage
+        {
+            get { return _logMessage; }
+            set { _logMessage = value; OnPropertyChanged("LogMessage"); IsLogsChanged = true; }
+        }
+        private string _logMessage;
+
+
+        public bool IsLogsChanged
+        {
+            get { return _IsLogsChanged; }
+            set { _IsLogsChanged = value; OnPropertyChanged("IsLogsChanged"); }
+        }
+        private bool _IsLogsChanged;
+        /// <summary>
         /// 処理可能か
         /// </summary>
         public bool IsEnabled
@@ -116,6 +133,37 @@ namespace SharePointExplorer.Models
             ExecuteUIProc(()=>{
                 ProgressMessage = message;
                 TopViewModel.ProgressMessage = message;
+            });
+        }
+
+        private Dictionary<string, string> multiMessages = new Dictionary<string, string>();
+        protected void AddProgressMessage(string key, string message)
+        {
+            string msg;
+            lock (TopViewModel.multiMessages)
+            {
+                TopViewModel.multiMessages[key] = message;
+                msg = string.Join("\n", TopViewModel.multiMessages.Values);
+            }
+            NotifyProgressMessage(msg);
+        }
+        protected void RemoveProgressMessage(string key)
+        {
+            string msg;
+            lock(TopViewModel.multiMessages)
+            {
+                TopViewModel.multiMessages.Remove(key);
+                msg = string.Join("\n", TopViewModel.multiMessages.Values);
+                if (string.IsNullOrEmpty(msg)) msg = Properties.Resources.MsgProcessing;
+            }
+            NotifyProgressMessage(msg);
+        }
+
+        protected void NotifyLogMessage(string message)
+        {
+            ExecuteUIProc(() => {
+                LogMessage = message;
+                TopViewModel.LogMessage = message;
             });
         }
 
@@ -252,7 +300,7 @@ namespace SharePointExplorer.Models
             IsCancelled = false;
             IsBusy = isBusy;
             CancelConfirmMessage = cancelConfirmMessage;
-
+            NotifyLogMessage("");
         }
 
         protected override void OnCommandExecuted(ICommand command, Exception error)

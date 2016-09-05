@@ -72,8 +72,19 @@ namespace SharePointExplorer.Models
             return context;
 
         }
+
+        public ClientContext GenerateContext()
+        {
+            var ret = CreateContext(siteUrl, User, Password);
+            var web = ret.Web;
+            ret.Load(web);
+            ret.ExecuteQueryWithIncrementalRetry();
+            return ret;
+        }
+
+
         public SPSiteItem(ExplorerVM parent, string siteUrl, string user, string password)
-            : base(null, null)
+            : base(null, null, null)
         {
             this.siteUrl = siteUrl.TrimEnd('/');
             this.User = user;
@@ -85,8 +96,10 @@ namespace SharePointExplorer.Models
         protected override async Task LoadChildren()
         {
             ListCollection lists = null;
+            WebCollection webs = null;
             await Task.Run(() => {
                 var web = Context.Web;
+                _web = web;
                 Context.Load(web);
                 Context.ExecuteQueryWithIncrementalRetry();
 
@@ -100,13 +113,22 @@ namespace SharePointExplorer.Models
                     y => y.RootFolder.Name,
                     y => y.RootFolder.ServerRelativeUrl));
 
+
+                webs = web.Webs;
+                Context.Load(webs, x => x.Include(
+                    y => y.Title,
+                    y => y.Url,
+                    y => y.RootFolder.Name,
+                    y => y.RootFolder.ServerRelativeUrl));
+
+
                 Context.ExecuteQueryWithIncrementalRetry();
             });
             foreach (var list in lists.Where(x => !x.IsApplicationList && !x.Hidden && x.Title != "Form Templates" && x.Title != "Customized Reports" && x.Title != "Site Collection Documents" && x.Title != "Site Collection Images" && x.Title != "Images"))
             {
                 if (list.BaseType == Microsoft.SharePoint.Client.BaseType.DocumentLibrary)
                 {
-                    Children.Add(new SPDocumentLibraryItem(this, Context, list));
+                    Children.Add(new SPDocumentLibraryItem(this, Web, Context, list));
                 }
                 //if (list.BaseType == Microsoft.SharePoint.Client.BaseType.DiscussionBoard)
                 //{
@@ -117,6 +139,11 @@ namespace SharePointExplorer.Models
                 //    Children.Add(new SPDiscussionBoardItem(this, Context, list));
                 //}
             }
+            foreach (var web in webs)
+            {
+                Children.Add(new SPSubSiteItem(this, web, Context));
+            }
+
         }
 
         public override string Icon

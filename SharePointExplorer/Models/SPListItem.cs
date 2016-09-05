@@ -27,8 +27,8 @@ namespace SharePointExplorer.Models
         }
         private ListItem _item;
 
-        public SPListItem(TreeItem parent, ClientContext context, ListItem item)
-            : base(parent, context)
+        public SPListItem(TreeItem parent, Web web, ClientContext context, ListItem item)
+            : base(parent, web, context)
 
         {
             this._item = item;

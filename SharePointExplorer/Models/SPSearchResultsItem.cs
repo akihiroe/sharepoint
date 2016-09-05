@@ -48,7 +48,7 @@ namespace SharePointExplorer.Models
         }
 
         public SPSearchResultsItem(ExplorerVM parent, IList<SPSearchResultFileItem> results,SPSiteItem target)
-            : base(target, target == null ? null : target.Context)
+            : base(target, null,  target == null ? null : target.Context)
         {
             Items = new ObservableCollection<SPSearchResultFileItem>(results);
             this.explorer = parent;

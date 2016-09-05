@@ -64,22 +64,18 @@ namespace SharePointExplorer.Views
         private void Folders_Drop(object sender, DragEventArgs e)
         {
             var item = FindAnchestor<TreeViewItem>(e.OriginalSource as DependencyObject);
-            if (item == null) return;
+            if (item == null) throw new NotSupportedException();
             var vm = item.DataContext as SPFolderItem;
-            if (vm == null) return;
+            if (vm == null) throw new NotSupportedException();
 
             string[] files = e.Data.GetData(DataFormats.FileDrop) as string[];
+            var folder = e.Data.GetData(DataFormats.StringFormat) as string;
+            var data = e.Data as IDataObject;
             if (files != null)
             {
                 vm.UploadCommand.Execute(files);
             }
-            var folder = e.Data.GetData(DataFormats.StringFormat) as string;
-            if (folder != null && folder != vm.SPUrl)
-            {
-                vm.MoveFolderCommand.Execute(new string[] { folder });
-            }
-            var data = e.Data as IDataObject;
-            if (data != null)
+            else if (data != null)
             {
                 var st = data.GetData(DataFormats.Serializable) as MemoryStream;
                 if (st != null)
@@ -88,6 +84,18 @@ namespace SharePointExplorer.Views
                     files = (string[])bin.Deserialize(st);
                     vm.MoveFolderCommand.Execute(files);
                 }
+                else
+                {
+                    throw new NotSupportedException();
+                }
+            }
+            else if (folder != null && folder != vm.SPUrl)
+            {
+                vm.MoveFolderCommand.Execute(new string[] { folder });
+            }
+            else
+            {
+                throw new NotSupportedException();
             }
         }
 

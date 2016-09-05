@@ -130,7 +130,8 @@ namespace SharePointExplorer.Models
                     try
                     {
                         var path = Utils.FileExtentionInfo(Utils.AssocStr.Executable, ext);
-                        var icon = System.Drawing.Icon.ExtractAssociatedIcon(path);
+//                        var icon = System.Drawing.Icon.ExtractAssociatedIcon(path);
+                        System.Drawing.Icon icon = IconTools.GetIconForExtension(ext, ShellIconSize.LargeIcon);
                         exeIcons[ext] = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
                                     icon.Handle,
                                     new Int32Rect(0, 0, icon.Width, icon.Height),
@@ -162,8 +163,8 @@ namespace SharePointExplorer.Models
             }
         }
 
-        public SPFileItem(TreeItem parent, ClientContext context, File file) 
-            :base(parent, context)
+        public SPFileItem(TreeItem parent, Web web, ClientContext context, File file) 
+            :base(parent, web, context)
 
         {
             this._file = file;
@@ -427,7 +428,7 @@ namespace SharePointExplorer.Models
 
         private void UpdateFile(string url)
         {
-            _file = Context.Web.GetFileByServerRelativeUrl(url);
+            _file = Web.GetFileByServerRelativeUrl(url);
             Context.Load(_file,
                 x => x.UniqueId,
                 x => x.Name,
@@ -486,31 +487,46 @@ namespace SharePointExplorer.Models
             get { return true; }
         }
 
-        public async Task<File> Upload(string fileName, string serverPath, int fileChunkSizeInMB = 3)
+        public async Task Upload(string fileName, string serverPath, int fileChunkSizeInMB = 3)
         {
-            var filename = serverPath.Split('/').LastOrDefault();
-            this.NotifyProgressMessage(string.Format(Properties.Resources.MsgUploading, filename));
 
-            return await Task<File>.Run(() =>
+            await Task<File>.Run(() =>
             {
-                UploadInternal(fileName, serverPath, fileChunkSizeInMB);
-                _file = Context.Web.GetFileByServerRelativeUrl(serverPath);
-                Context.Load(_file,
-                    x => x.UniqueId,
-                    x => x.Name,
-                    x => x.ServerRelativeUrl,
-                    x => x.TimeLastModified,
-                    x => x.ModifiedBy,
-                    x => x.CheckOutType,
-                    x => x.CheckedOutByUser,
-                    x => x.Length);
-                Context.ExecuteQueryWithIncrementalRetry();
-
-                return _file;
+                UploadSync(fileName, serverPath, fileChunkSizeInMB);
             });
 
         }
 
+        private void UploadSync(string fileName, string serverPath, int fileChunkSizeInMB)
+        {
+            try
+            {
+                var filename = serverPath.Split('/').LastOrDefault();
+                this.AddProgressMessage(serverPath, string.Format(Properties.Resources.MsgUploading, filename));
+                UploadInternal(fileName, serverPath, fileChunkSizeInMB);
+                //_file = Web.GetFileByServerRelativeUrl(serverPath);
+                //Context.Load(_file,
+                //    x => x.UniqueId,
+                //    x => x.Name,
+                //    x => x.ServerRelativeUrl,
+                //    x => x.TimeLastModified,
+                //    x => x.ModifiedBy,
+                //    x => x.CheckOutType,
+                //    x => x.CheckedOutByUser,
+                //    x => x.Length);
+                //Context.ExecuteQueryWithIncrementalRetry();
+                //return _file;
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+                throw;
+            }
+            finally
+            {
+                this.RemoveProgressMessage(serverPath);
+            }
+        }
 
         private void UploadInternal(string fileName, string serverPath, int fileChunkSizeInMB)
         {
@@ -524,18 +540,17 @@ namespace SharePointExplorer.Models
             if (fileSize <= blockSize)
             {
                 // Use regular approach.
-                using (var fs = new System.IO.FileStream(fileName, System.IO.FileMode.Open))
+                using (var fs = new System.IO.FileStream(fileName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite))
                 {
                     FileCreationInformation fileInfo = new FileCreationInformation();
                     fileInfo.ContentStream = fs;
                     fileInfo.Url = filename;
                     fileInfo.Overwrite = true;
-                    var direItem = Context.Web.GetFolderByServerRelativeUrl(GetParentFolder(serverPath));
+                    var direItem = Web.GetFolderByServerRelativeUrl(GetParentFolder(serverPath));
                     var uploadFile = direItem.Files.Add(fileInfo);
-
-                    Context.Load(uploadFile);
+                    uploadFile.ListItemAllFields["Modified"] = System.IO.File.GetLastWriteTimeUtc(fileName);
+                    uploadFile.ListItemAllFields.Update();
                     Context.ExecuteQuery();
-
                 }
             }
             else
@@ -582,7 +597,7 @@ namespace SharePointExplorer.Models
                                     fileInfo.Url = filename;
                                     fileInfo.Overwrite = true;
 
-                                    var direItem = Context.Web.GetFolderByServerRelativeUrl(GetParentFolder(serverPath));
+                                    var direItem = Web.GetFolderByServerRelativeUrl(GetParentFolder(serverPath));
                                     var uploadFile = direItem.Files.Add(fileInfo);
 
                                     // Start upload by uploading the first slice. 
@@ -602,7 +617,7 @@ namespace SharePointExplorer.Models
                             else
                             {
                                 // Get a reference to your file.
-                                var uploadFile = Context.Web.GetFileByServerRelativeUrl(serverPath);
+                                var uploadFile = Web.GetFileByServerRelativeUrl(serverPath);
 
                                 if (last)
                                 {
@@ -611,6 +626,8 @@ namespace SharePointExplorer.Models
                                     {
                                         // End sliced upload by calling FinishUpload.
                                         uploadFile = uploadFile.FinishUpload(uploadId, fileoffset, s);
+                                        uploadFile.ListItemAllFields["Modified"] = System.IO.File.GetLastWriteTimeUtc(fileName);
+                                        uploadFile.ListItemAllFields.Update();
                                         Context.ExecuteQuery();
                                     }
                                     break;
@@ -630,7 +647,7 @@ namespace SharePointExplorer.Models
 
                             if (IsCancelled)
                             {
-                                var uploadFile = Context.Web.GetFileByServerRelativeUrl(serverPath);
+                                var uploadFile = Web.GetFileByServerRelativeUrl(serverPath);
                                 uploadFile.CancelUpload(uploadId);
                                 Context.ExecuteQuery();
                                 throw new OperationCanceledException();

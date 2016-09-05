@@ -51,8 +51,8 @@ namespace SharePointExplorer.Models
         }
         public object _currentContent;
 
-        public SPDiscussionBoardItem(TreeItem parent, ClientContext context, List list)
-            : base(parent, context)
+        public SPDiscussionBoardItem(TreeItem parent, Web web, ClientContext context, List list)
+            : base(parent, web, context)
         {
             Items = new ObservableCollection<SPTopicItem>();
             _list = list;

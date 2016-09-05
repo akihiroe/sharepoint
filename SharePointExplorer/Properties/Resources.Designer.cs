@@ -61,6 +61,15 @@ namespace SharePointExplorer.Properties {
         }
         
         /// <summary>
+        ///   {0} Do you want to continue processing ? に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgAppErrorDisplayAndConfirm {
+            get {
+                return ResourceManager.GetString("MsgAppErrorDisplayAndConfirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Cancel に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string MsgCancel {
@@ -84,6 +93,15 @@ namespace SharePointExplorer.Properties {
         public static string MsgCanceling {
             get {
                 return ResourceManager.GetString("MsgCanceling", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   {0} change {1} to {2} に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgChangeFolder {
+            get {
+                return ResourceManager.GetString("MsgChangeFolder", resourceCulture);
             }
         }
         
@@ -520,6 +538,15 @@ namespace SharePointExplorer.Properties {
         }
         
         /// <summary>
+        ///   {0} upload {1} as {2} に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgRenamedUploaded {
+            get {
+                return ResourceManager.GetString("MsgRenamedUploaded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Rename folder に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string MsgRenameFolder {
@@ -628,11 +655,38 @@ namespace SharePointExplorer.Properties {
         }
         
         /// <summary>
+        ///   Upload (auto mode) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgTryUpload {
+            get {
+                return ResourceManager.GetString("MsgTryUpload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Do you want to upload only the newer files? に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgUpdateWithModified {
+            get {
+                return ResourceManager.GetString("MsgUpdateWithModified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Upload に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string MsgUpload {
             get {
                 return ResourceManager.GetString("MsgUpload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   {0} uploaded {1} に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgUploaded {
+            get {
+                return ResourceManager.GetString("MsgUploaded", resourceCulture);
             }
         }
         

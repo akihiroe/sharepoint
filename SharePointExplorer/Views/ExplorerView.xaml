@@ -16,7 +16,7 @@
         <local:PercentageConverter x:Key="PercentageConverter"/>
     </Window.Resources>
     <Grid>
-        <Grid Name="ExplorerVM" DataContext="{Binding Mode=OneWay}" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+        <Grid Name="ExplorerVM" IsEnabled="{Binding Path=IsEnabled}" DataContext="{Binding Mode=OneWay}" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
             <Menu Grid.Row="0" FontSize="16">
                 <Menu.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -112,7 +112,7 @@
             </Grid.ColumnDefinitions>
         </Grid>
 
-        <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  Background="#19FFFFFF"  Visibility="{Binding Path=IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" Grid.Row="1" >
+        <Grid Name="ProcessingPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  Background="#19FFFFFF"  Visibility="{Binding Path=IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" Grid.Row="1" IsVisibleChanged="ProcessingPanel_IsVisibleChanged" >
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Border Padding="15,15,15,15" Background="LightGray" Opacity="1">
                     <StackPanel 
@@ -121,7 +121,7 @@
                            ElementName=ExplorerVM, 
                            Path=ActualWidth, 
                            ConverterParameter=0.7}"
-                        Height="180" MinWidth="300" >
+                        Height="260" MinWidth="300" >
                         <StackPanel Margin="10">
                             <local:LoadingWait></local:LoadingWait>
                         </StackPanel>
@@ -129,9 +129,13 @@
                             <TextBlock Name="progressMessage" TextWrapping="Wrap" HorizontalAlignment="Center" Text="{Binding Path=ProgressMessage}">
                             </TextBlock>
                         </ScrollViewer>
-                        <Button Name="Cancel" Margin="10" ForceCursor="false" Cursor="Hand" HorizontalAlignment="Center" Command="{Binding Path=CancelCommand}" Visibility="{Binding Path=CanCanceled, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                        <Button Name="Cancel" Margin="10" ForceCursor="false" Cursor="Hand" HorizontalAlignment="Center" Command="{Binding Path=CancelCommand}" Visibility="{Binding Path=CanCanceled, Converter={StaticResource BooleanToVisibilityConverter}}" IsVisibleChanged="Cancel_IsVisibleChanged" >
                             <TextBlock Text="{x:Static properties:Resources.MsgCancel}" />
                         </Button>
+                        <ScrollViewer Height="70" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" local:ViewHelper.AutoScroll="{Binding IsLogsChanged}" >
+                            <TextBlock Name="logMessage" TextWrapping="Wrap" HorizontalAlignment="Center" Text="{Binding Path=LogMessage}">
+                            </TextBlock>
+                        </ScrollViewer>
                     </StackPanel>
                 </Border>
             </StackPanel>

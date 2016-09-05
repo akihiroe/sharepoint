@@ -19,6 +19,12 @@ namespace SharePointExplorer.Models
         }
         private ClientContext _context;
 
+        public virtual Web Web
+        {
+            get { return _web; }
+        }
+        internal Web _web;
+
         public FileCacheManager FileCache
         {
             get
@@ -198,9 +204,10 @@ namespace SharePointExplorer.Models
             return null;
         }
 
-        public SPTreeItem(TreeItem parent, ClientContext context):base(parent)
+        public SPTreeItem(TreeItem parent,Web web,ClientContext context):base(parent)
         {
             this._context = context;
+            this._web = web;
         }
 
         public virtual async Task<List<SPSearchResultFileItem>> Search(object obj)
@@ -221,7 +228,7 @@ namespace SharePointExplorer.Models
             {
                 foreach (Dictionary<string, object> item in query.ResultRows)
                 {
-                    list.Add(new SPSearchResultFileItem(this, Context, item));
+                    list.Add(new SPSearchResultFileItem(this, Context.Web, Context, item));
                 }
             }
             return  list;
@@ -296,5 +303,40 @@ namespace SharePointExplorer.Models
         {
             return path.Substring(0, path.Length - path.Split('/').Last().Length);
         }
+
+        protected SPSiteItem FindSPSite()
+        {
+            if (spsite != null) return spsite;
+            var parent = Parent;
+            while (parent != null)
+            {
+                if (parent is SPSiteItem)
+                {
+                    spsite = (SPSiteItem)parent;
+                    return spsite;
+                }
+                parent = parent.Parent;
+            }
+            throw new InvalidOperationException();
+        }
+        private SPSiteItem spsite;
+        protected SPDocumentLibraryItem FindDocumentLibrary()
+        {
+            if (docLib != null) return docLib;
+            var parent = Parent;
+            while (parent != null)
+            {
+                if (parent is SPDocumentLibraryItem)
+                {
+                    docLib = (SPDocumentLibraryItem)parent;
+                    return docLib;
+                }
+                parent = parent.Parent;
+            }
+            throw new InvalidOperationException();
+        }
+
+        private SPDocumentLibraryItem docLib;
+
     }
 }

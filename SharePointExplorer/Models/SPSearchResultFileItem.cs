@@ -65,8 +65,8 @@ namespace SharePointExplorer.Models
 
         public Dictionary<string,object> Result { get; set; }
 
-        public SPSearchResultFileItem(TreeItem parent, ClientContext context, Dictionary<string, object> result) 
-            :base(parent, context)
+        public SPSearchResultFileItem(TreeItem parent, Web web, ClientContext context, Dictionary<string, object> result) 
+            :base(parent, web, context)
         {
             this.Result = result;
         }

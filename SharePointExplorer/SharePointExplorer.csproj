@@ -35,7 +35,7 @@
     <PublisherName>proaxia consulting</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>53</ApplicationRevision>
+    <ApplicationRevision>57</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -113,6 +113,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\IconTools.cs" />
+    <Compile Include="Models\SPSubSiteItem.cs" />
     <Compile Include="Views\AppListView.cs" />
     <Compile Include="Models\AppViewModel.cs" />
     <Compile Include="Models\CachedFile.cs" />
@@ -178,6 +180,7 @@
       <DependentUpon>SPSiteView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\VirtualFileDataObject.cs" />
+    <Compile Include="Views\ViewHelper.cs" />
     <Page Include="Views\ConnectView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

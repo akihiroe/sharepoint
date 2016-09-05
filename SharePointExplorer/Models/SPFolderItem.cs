@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -83,7 +84,13 @@ namespace SharePointExplorer.Models
                 {
                     item.IsCancelled = value;
                 }
-                if (newFile != null) newFile.IsCancelled = value;
+                lock (newFiles)
+                {
+                    foreach (var newFile in newFiles)
+                    {
+                        newFile.IsCancelled = value;
+                    }
+                }
             }
         }
 
@@ -99,9 +106,9 @@ namespace SharePointExplorer.Models
             get { return !_isEditing; }
         }
 
-
-        public SPFolderItem(TreeItem parent, ClientContext context, Folder folder)
-            : base(parent, context)
+         
+        public SPFolderItem(TreeItem parent, Web web, ClientContext context, Folder folder)
+            : base(parent, web, context)
         {
             Items = new ObservableCollection<SPFileItem>();
             _folder = folder;
@@ -125,7 +132,7 @@ namespace SharePointExplorer.Models
             foreach (var subFolder in Folder.Folders.OrderBy(x=>x.Name))
             {
                 if (subFolder.Name == "Forms") continue;
-                Children.Add(new SPFolderItem(this, Context, subFolder));
+                Children.Add(new SPFolderItem(this, Web, Context, subFolder));
             }
 
             Items.Clear();
@@ -161,7 +168,7 @@ namespace SharePointExplorer.Models
 
             foreach (var file in files)
             {
-                Items.Add(new SPFileItem(this, Context, file));
+                Items.Add(new SPFileItem(this, Web, Context, file));
             }
         }
 
@@ -180,7 +187,7 @@ namespace SharePointExplorer.Models
             get { return this.CreateCommand((x)=>ExecuteActionAsync(Upload(x),null,null, true, true, Properties.Resources.MsgConfirmCancelUpload)); }
         }
 
-        private SPFileItem newFile;
+        private List<SPFileItem> newFiles = new List<SPFileItem>();
 
         private async Task Upload(object arg)
         {
@@ -195,33 +202,69 @@ namespace SharePointExplorer.Models
             }
         }
 
-        public async Task<SPFileItem> UploadFile(string file, string path)
+        public async Task UploadFile(string file, string path)
         {
-            return await UploadSub(file, path);
+            await UploadSub(file, path);
         }
 
-        private async Task<SPFileItem> UploadSub(string file, string path)
+        private async Task UploadSub(string file, string path, bool updateWithModified = false)
         {
             var fileChild = this.Items.Where(x => x.Path == path).FirstOrDefault();
             if (fileChild != null)
             {
+                //ミリ秒のギャップあり。ミリ秒以下を無視するため
+                var fileTime = System.IO.File.GetLastWriteTimeUtc(file).AddSeconds(-1);
+                if (updateWithModified && fileChild.Modified.ToUniversalTime() > fileTime) return;
                 var cache = FileCache.GetCachedFile(fileChild.Id);
                 if (cache == null) FileCache.ClearCachedFile(fileChild.Id);
             }
 
             var overrideFile = Items.Where(x => string.Equals(x.Name, System.IO.Path.GetFileName(file), StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-
-            newFile = new SPFileItem(this, Context, null);
-            await newFile.Upload(file, path);
-            if (overrideFile != null) Items.Remove(overrideFile);
-            if (newFile.File != null)
+            await Throttler.WaitAsync();
+            AllTasks.Add(Task.Run(async () =>
             {
-                Items.Add(newFile);
-            }
-            var retFile = newFile;
-            newFile = null;
-
-            return newFile;
+                try
+                {
+                    var context = FindSPSite().GenerateContext();
+                    var newFile = new SPFileItem(this, context.Web, context, null);
+                    lock (newFiles)
+                    {
+                        newFiles.Add(newFile);
+                    }
+                    try
+                    {
+                        await newFile.Upload(file, path);
+                        if (overrideFile != null) Items.Remove(overrideFile);
+                        if (newFile.File != null)
+                        {
+                            Items.Add(newFile);
+                        }
+                    }
+                    finally
+                    {
+                        lock (newFiles)
+                        {
+                            newFiles.Remove(newFile);
+                        }
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                    TopViewModel.LogMessage += DateTime.Now.ToString("HH:mm:ss") + " " + ex.Message + "\n";
+                    var msg = string.Format(Properties.Resources.MsgAppErrorDisplayAndConfirm, ex.Message);
+                    if (!IgnoreError && MessageBox.Show(msg, "Confirm", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel) throw;
+                    IgnoreError = true;
+                }
+                finally
+                {
+                    Throttler.Release();
+                }
+            }));
         }
 
         public ICommand DeleteCommand
@@ -405,8 +448,16 @@ namespace SharePointExplorer.Models
                             files = GetDataObjectAsPaths(dataObj);
                             await CopyFiles(files);
                         }
+                        else
+                        {
+                            throw new NotSupportedException();
+                        }
                     }
                 }
+            }
+            else
+            {
+                throw new NotSupportedException();
             }
         }
 
@@ -455,7 +506,7 @@ namespace SharePointExplorer.Models
                     var targetFile = System.IO.Path.Combine(target, file.Name);
                     using (var st = new System.IO.FileStream(targetFile, System.IO.FileMode.Create))
                     {
-                        var fileObj = Context.Web.GetFileByServerRelativeUrl(file.File.ServerRelativeUrl);
+                        var fileObj = Web.GetFileByServerRelativeUrl(file.File.ServerRelativeUrl);
                         var data = fileObj.OpenBinaryStream();
                         Context.ExecuteQuery();
                         data.Value.CopyTo(st);
@@ -639,7 +690,7 @@ namespace SharePointExplorer.Models
                 x => x.Name,
                 x => x.ServerRelativeUrl);
             Context.ExecuteQuery();
-            var newFolderItem = new SPFolderItem(this, Context, newFolder);
+            var newFolderItem = new SPFolderItem(this, Web, Context, newFolder);
             Children.Add(newFolderItem);
             return newFolderItem;
         }
@@ -663,7 +714,7 @@ namespace SharePointExplorer.Models
 
         private void UpdateFolder(string url)
         {
-            _folder = Context.Web.GetFolderByServerRelativeUrl(url);
+            _folder = Web.GetFolderByServerRelativeUrl(url);
             Context.Load(_folder,
                 x => x.Name,
                 x => x.ServerRelativeUrl);
@@ -702,7 +753,7 @@ namespace SharePointExplorer.Models
         {
             var newParent = await RootVM.FindItemByUrl(GetParentFolder(targetFolderUrl), false);
             if (newParent == null) throw new InvalidOperationException("can't load targetFolder");
-            if (newParent.Context.Url == Context.Url)
+            if (newParent.Web.Url == Web.Url)
             {
                 Folder.MoveTo(targetFolderUrl);
                 Context.ExecuteQuery();
@@ -740,6 +791,7 @@ namespace SharePointExplorer.Models
         {
             var target = await base.FindNodeByUrl(url, ensure);
             if (target != null) return target;
+            if (!url.StartsWith(this.SPUrl)) return null;
             foreach (var child in Items)
             {
                 target = await child.FindNodeByUrl(url, ensure);
@@ -842,37 +894,216 @@ namespace SharePointExplorer.Models
 
                     var targetPath = (x as string) ?? ShowFolderDailog();
                     if (targetPath == null) return;
-                    ExecuteActionAsync(UploadFolderAsync(targetPath), null, null, true);
-
+                    IgnoreError = false;
+                    Throttler = new SemaphoreSlim(initialCount: 1);
+                    AllTasks = new List<Task>();
+                    BackupFolder = this;
+                    AutoAdjustRename = false;
+                    var updateWithModified = Confirm("confirm",Properties.Resources.MsgUpdateWithModified);
+                    ExecuteActionAsync(UploadFolder(targetPath, updateWithModified), null, null, true);
                 });
             }
         }
 
-        private async Task UploadFolderAsync(string targetFolder)
+        public ICommand TryUploadFolderCommand
+        {
+            get
+            {
+                return CreateCommand((x) => {
+
+                    var targetPath = (x as string) ?? ShowFolderDailog();
+                    if (targetPath == null) return;
+                    IgnoreError = true;
+                    Throttler = new SemaphoreSlim(initialCount: 10);
+                    AllTasks = new List<Task>();
+                    BackupFolder = this;
+                    AutoAdjustRename = true;
+                    var updateWithModified = Confirm("confirm", Properties.Resources.MsgUpdateWithModified);
+                    ExecuteActionAsync(UploadFolder(targetPath, updateWithModified), null, null, true);
+                });
+            }
+        }
+
+        private async Task UploadFolder(string targetFolder, bool updateWithModified)
+        {
+            await UploadFolderAsync(targetFolder, updateWithModified);
+            await Task.WhenAll(AllTasks);
+        }
+
+        private bool IsTooLongFolder(string path)
+        {
+            return path.Length > 200;
+        }
+
+        private string tooLongFolder = "too Long";
+
+        private async Task<SPFolderItem> CreateTooLongDirectory(string path)
+        {
+            await BackupFolder.EnsureChildren();
+            var topFolder = BackupFolder.Children.OfType<SPFolderItem>().Where(x => x.Name == tooLongFolder).FirstOrDefault();
+            if (topFolder == null)
+            {
+                topFolder = BackupFolder.CreateFolderInternal(tooLongFolder);
+            }
+            await topFolder.EnsureChildren();
+            var work = path.Split('/');
+            var direName = work.Last();
+            var h = CreateHash(path);
+            if (h.Length > 6) h = h.Substring(0, 6);
+
+            //最大50文字
+            if (direName.Length > 50-h.Length) direName = direName.Substring(0, 50-h.Length);
+            direName += h;
+
+            if (IsTooLongFolder(topFolder.Path + direName))
+            {
+                var p = topFolder.Path.Length + direName.Length - 200;
+                if (direName.Length > p)
+                {
+                    direName = direName.Substring(0, direName.Length - p);
+                }
+                else
+                {
+                    direName = direName.Substring(0,1);
+                }
+                direName = direName + h;
+            }
+            var shortcut = topFolder.Children.OfType<SPFolderItem>().Where(x => x.Name == direName).FirstOrDefault();
+            if (shortcut == null)
+            {
+                shortcut = topFolder.CreateFolderInternal(direName);
+            }
+            await shortcut.EnsureChildren();
+            return shortcut;
+        }
+
+        private string CreateHash(string path)
+        {
+            var md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+            byte[] data = System.Text.Encoding.UTF8.GetBytes(path);
+            byte[] bs = md5.ComputeHash(data);
+            md5.Clear();
+            var result = new System.Text.StringBuilder();
+            foreach (byte b in bs)
+            {
+                result.Append(b.ToString("x2"));
+            }
+            return result.ToString();
+        }
+        private string ConvertUploadablePath(string path)
+        {
+            path = path.Replace("#", "").Replace("&", "");
+            if (path.Length > 250)
+            {
+                var h = CreateHash(path);
+                if (h.Length > 10) h = h.Substring(0, 10);
+                path = path.Substring(0, 240) + h;                     
+            }
+            return path;
+        }
+
+        private SemaphoreSlim Throttler
+        {
+            get { return FindDocumentLibrary()._throttler; }
+            set { FindDocumentLibrary()._throttler = value; }
+        }
+
+        private List<Task> AllTasks
+        {
+            get { return FindDocumentLibrary()._allTasks; }
+            set { FindDocumentLibrary()._allTasks = value; }
+        }
+
+        private SPFolderItem BackupFolder
+        {
+            get { return FindDocumentLibrary()._backupFolder; }
+            set { FindDocumentLibrary()._backupFolder = value; }
+        }
+
+        private bool IgnoreError
+        {
+            get { return FindDocumentLibrary()._ignoreError; }
+            set { FindDocumentLibrary()._ignoreError = value; }
+        }
+
+        private bool AutoAdjustRename
+        {
+            get { return FindDocumentLibrary()._autoAdjustRename; }
+            set { FindDocumentLibrary()._autoAdjustRename = value; }
+        }
+
+
+        private async Task UploadFolderAsync(string targetFolder, bool updateWithModified)
         {
             if (targetFolder == null) return;
             await EnsureChildren(true);
-            foreach (var file in Directory.GetFiles(targetFolder))
+
+            DirectoryInfo directory = new DirectoryInfo(targetFolder);
+            foreach (var file in directory.GetFiles().Where(x=>!x.Attributes.HasFlag(FileAttributes.Hidden)).Select(x=>x.FullName))
             {
                 if (IsCancelled) throw new OperationCanceledException();
                 var relativePath = file.Substring(targetFolder.Length).Replace("\\", "/");
-                await UploadSub(file, Path+relativePath);
+                if (AutoAdjustRename)
+                {
+                    var newRelativePath = ConvertUploadablePath(relativePath);
+                    if (relativePath != newRelativePath)
+                    {
+                        NotifyLogMessage(TopViewModel.LogMessage + string.Format(Properties.Resources.MsgRenamedUploaded, DateTime.Now.ToString("HH:mm:ss"), relativePath, newRelativePath) + "\n");
+                        relativePath = newRelativePath;
+                        Debug.WriteLine(newRelativePath);
+                    }
+                }
+                await UploadSub(file, Path + relativePath, updateWithModified);
             }
 
             foreach (var dire in Directory.GetDirectories(targetFolder))
             {
-                if (IsCancelled) throw new OperationCanceledException();
-                var newDirename = System.IO.Path.GetFileName(dire);
-                var targetChild = Children.OfType<SPFolderItem>().Where(x => x.Name == newDirename).FirstOrDefault() ;
-                if (targetChild == null)
+                try
                 {
-                    targetChild = CreateFolderInternal(newDirename);
+                   if (IsCancelled) throw new OperationCanceledException();
+                    var newDirename = System.IO.Path.GetFileName(dire);
+                    if (AutoAdjustRename)
+                    {
+                        var newNewDirename = ConvertUploadablePath(newDirename);
+                        if (newDirename != newNewDirename)
+                        {
+                            NotifyLogMessage(TopViewModel.LogMessage + string.Format(Properties.Resources.MsgRenamedUploaded, DateTime.Now.ToString("HH:mm:ss"), newDirename, newNewDirename) + "\n");
+                            newDirename = newNewDirename;
+                        }
+                    }
+                    NotifyProgressMessage(Properties.Resources.MsgProcessing);
+
+                    var newPath = this.Path + "/" + newDirename;
+                    SPFolderItem targetChild;
+                    if (!IsTooLongFolder(newPath))
+                    {
+                        targetChild = Children.OfType<SPFolderItem>().Where(x => x.Name == newDirename).FirstOrDefault();
+                        if (targetChild == null)
+                        {
+                            Debug.WriteLine("Create Directory " + newDirename);
+                            targetChild = CreateFolderInternal(newDirename);
+                        }
+                    }
+                    else
+                    {
+                        targetChild = await CreateTooLongDirectory(newPath);
+                    }
+                    await targetChild.UploadFolderAsync(dire, updateWithModified);
                 }
-                await targetChild.UploadFolderAsync(dire);
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    NotifyLogMessage(TopViewModel.LogMessage + DateTime.Now.ToString("HH:mm:ss") + " " + ex.Message + "\n");
+                    var msg = string.Format(Properties.Resources.MsgAppErrorDisplayAndConfirm, ex.Message);
+                    if (!IgnoreError && MessageBox.Show(msg, "Confirm", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel) throw;
+                    IgnoreError = true;
+                }
             }
         }
 
-        
         public override bool AvailableUploadFolder { get { return true; } }
 
 

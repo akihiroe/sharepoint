@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="MsgAppErrorDisplayAndConfirm" xml:space="preserve">
+    <value>{0} Do you want to continue processing ?</value>
+  </data>
   <data name="MsgCancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
@@ -125,6 +128,9 @@
   </data>
   <data name="MsgCanceling" xml:space="preserve">
     <value>Canceling</value>
+  </data>
+  <data name="MsgChangeFolder" xml:space="preserve">
+    <value>{0} change {1} to {2}</value>
   </data>
   <data name="MsgCheckedOutUser" xml:space="preserve">
     <value>Checked out user</value>
@@ -270,6 +276,9 @@
   <data name="MsgRename" xml:space="preserve">
     <value>Rename</value>
   </data>
+  <data name="MsgRenamedUploaded" xml:space="preserve">
+    <value>{0} upload {1} as {2}</value>
+  </data>
   <data name="MsgRenameFolder" xml:space="preserve">
     <value>Rename folder</value>
   </data>
@@ -306,13 +315,22 @@
   <data name="MsgTargetFolder" xml:space="preserve">
     <value>Target URL</value>
   </data>
+  <data name="MsgUpdateWithModified" xml:space="preserve">
+    <value>Do you want to upload only the newer files?</value>
+  </data>
   <data name="MsgUpload" xml:space="preserve">
     <value>Upload</value>
+  </data>
+  <data name="MsgUploaded" xml:space="preserve">
+    <value>{0} uploaded {1}</value>
   </data>
   <data name="MsgUploading" xml:space="preserve">
     <value>{0} uploading.</value>
   </data>
   <data name="MsgUser" xml:space="preserve">
     <value>User</value>
+  </data>
+  <data name="MsgTryUpload" xml:space="preserve">
+    <value>Upload (auto mode)</value>
   </data>
 </root>

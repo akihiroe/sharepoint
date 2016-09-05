@@ -21,10 +21,12 @@ namespace SharePointExplorer.Views
     /// </summary>
     public partial class ExplorerView : Window
     {
+        ExplorerVM vm;
+
         public ExplorerView()
         {
             InitializeComponent();
-            var vm = new ExplorerVM();
+            vm = new ExplorerVM();
             this.DataContext = vm;
             vm.PropertyChanged += Vm_PropertyChanged;
             vm.ViewCommandNotified += Vm_ViewCommandNotified;
@@ -37,8 +39,6 @@ namespace SharePointExplorer.Views
 
         private void Vm_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            //if (sender != null) Debug.WriteLine(sender.ToString() + " " + (e.PropertyName ?? "null"));
-
         }
 
         private void TextBox_KeyDown(object sender, KeyEventArgs e)
@@ -57,6 +57,14 @@ namespace SharePointExplorer.Views
             ExplorerSettings.Instance.DateFormat = format;
             ExplorerSettings.Instance.Save();
             var vm = (ExplorerVM)this.DataContext;
+        }
+
+        private void ProcessingPanel_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        private void Cancel_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
         }
     }
 }

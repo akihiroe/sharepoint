@@ -27,6 +27,7 @@
                     <Separator/>
                     <MenuItem Header="{x:Static properties:Resources.MsgDownload}" Command="{Binding Path=DownloadFolderCommand}"  IsEnabled="{Binding Path=AvailableDownloadFolder}"  />
                     <MenuItem Header="{x:Static properties:Resources.MsgUpload}" Command="{Binding Path=UploadFolderCommand}"  IsEnabled="{Binding Path=AvailableUploadFolder}"  />
+                    <MenuItem Header="{x:Static properties:Resources.MsgTryUpload}" Command="{Binding Path=TryUploadFolderCommand}"  IsEnabled="{Binding Path=AvailableUploadFolder}"  />
                     <Separator/>
                     <MenuItem Header="{x:Static properties:Resources.MsgCreateFolder}" Command="{Binding Path=CreateFolderCommand}" Visibility="{Binding Path=AvailableCreateFolder, Converter={StaticResource BooleanToVisibilityConverter}}"  />
                     <MenuItem Header="{x:Static properties:Resources.MsgRenameFolder}" Command="{Binding Path=RenameFolderEditCommand}" Visibility="{Binding Path=AvailableRenameFolder, Converter={StaticResource BooleanToVisibilityConverter}}"  />

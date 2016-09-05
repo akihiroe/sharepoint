@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using ViewMaker.Core;
@@ -26,8 +27,8 @@ namespace SharePointExplorer.Models
         }
         private List _list;
 
-        public SPDocumentLibraryItem(TreeItem parent, ClientContext context, List list)
-            : base(parent, context, list.RootFolder)
+        public SPDocumentLibraryItem(TreeItem parent, Web web, ClientContext context, List list)
+            : base(parent, web, context, list.RootFolder)
         {
             _list = list;
         }
@@ -44,7 +45,7 @@ namespace SharePointExplorer.Models
         {
             get
             {
-                return Context.Url + "/" + List.Title;
+                return Web.Url + "/" + List.Title;
             }
         }
 
@@ -69,5 +70,12 @@ namespace SharePointExplorer.Models
                 return false;
             }
         }
+
+        internal SPFolderItem _backupFolder;
+        internal SemaphoreSlim _throttler;
+        internal List<Task> _allTasks;
+        internal bool _ignoreError;
+        internal bool _autoAdjustRename;
+
     }
 }

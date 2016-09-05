@@ -81,6 +81,10 @@ namespace SharePointExplorer.Views
             {
                 vm.UploadCommand.Execute(files);
             }
+            else
+            {
+                throw new NotSupportedException();
+            }
         }
 
         GridViewColumnHeader _lastHeaderClicked = null;

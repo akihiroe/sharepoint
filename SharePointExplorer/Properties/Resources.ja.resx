@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="MsgAppErrorDisplayAndConfirm" xml:space="preserve">
+    <value>{0}。処理を継続しますか？</value>
+  </data>
   <data name="MsgCancel" xml:space="preserve">
     <value>中止</value>
   </data>
@@ -125,6 +128,9 @@
   </data>
   <data name="MsgCanceling" xml:space="preserve">
     <value>中止します</value>
+  </data>
+  <data name="MsgChangeFolder" xml:space="preserve">
+    <value>{0} {1} を {2} 変更</value>
   </data>
   <data name="MsgCheckedOutUser" xml:space="preserve">
     <value>編集中</value>
@@ -270,6 +276,9 @@
   <data name="MsgRename" xml:space="preserve">
     <value>名前の変更</value>
   </data>
+  <data name="MsgRenamedUploaded" xml:space="preserve">
+    <value>{0} アップロード {1} 名前変更  {2}</value>
+  </data>
   <data name="MsgRenameFolder" xml:space="preserve">
     <value>名前の変更</value>
   </data>
@@ -306,13 +315,22 @@
   <data name="MsgTargetFolder" xml:space="preserve">
     <value>移動先URL</value>
   </data>
+  <data name="MsgUpdateWithModified" xml:space="preserve">
+    <value>新しいファイルのみ更新しますか</value>
+  </data>
   <data name="MsgUpload" xml:space="preserve">
     <value>アップロード</value>
+  </data>
+  <data name="MsgUploaded" xml:space="preserve">
+    <value>{0} アップロード済 {1}</value>
   </data>
   <data name="MsgUploading" xml:space="preserve">
     <value>{0} アップロード中</value>
   </data>
   <data name="MsgUser" xml:space="preserve">
     <value>ユーザ</value>
+  </data>
+  <data name="MsgTryUpload" xml:space="preserve">
+    <value>アップロード（自動パス変更）</value>
   </data>
 </root>

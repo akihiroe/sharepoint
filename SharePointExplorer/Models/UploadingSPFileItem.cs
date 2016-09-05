@@ -37,8 +37,8 @@ namespace SharePointExplorer.Models
             get { return System.IO.File.GetLastWriteTimeUtc(localPath); }
         }
 
-        public UploadingSPFileItem(TreeItem parent, ClientContext context,string localPath)
-            :base(parent,context, null)
+        public UploadingSPFileItem(TreeItem parent, Web web, ClientContext context,string localPath)
+            :base(parent, web, context, null)
         {
             this.localPath = localPath;
             this.info = new System.IO.FileInfo(localPath);
