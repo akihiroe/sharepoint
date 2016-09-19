@@ -43,7 +43,7 @@ namespace SharePointExplorer.Models
 
         public override bool IsBusy
         {
-            get { return RootVM.IsBusy; }
+            get { return  RootVM.IsBusy; }
             set { RootVM.IsBusy = value;  }
         }
 
@@ -214,13 +214,11 @@ namespace SharePointExplorer.Models
         {
             ClientResult<ResultTableCollection> results = null;
             await Task.Run(() => {
-                RetryAction(() => {
-                    var keywordQuery = new KeywordQuery(Context);
-                    keywordQuery.QueryText = "IsDocument:1 " + (string)obj;
-                    SearchExecutor searchExecutor = new SearchExecutor(Context);
-                    results = searchExecutor.ExecuteQuery(keywordQuery);
-                    Context.ExecuteQueryWithIncrementalRetry();
-                });
+                var keywordQuery = new KeywordQuery(Context);
+                keywordQuery.QueryText = "IsDocument:1 " + (string)obj;
+                SearchExecutor searchExecutor = new SearchExecutor(Context);
+                results = searchExecutor.ExecuteQuery(keywordQuery);
+                Context.ExecuteQueryWithIncrementalRetry();
             });
 
             var list = new List<SPSearchResultFileItem>();
@@ -282,61 +280,27 @@ namespace SharePointExplorer.Models
             get { return ((SPTreeItem)FindRoot()).RootVM; }
         }
 
-        public void RetryAction(Action action, int maxCount = 5, int delay = 1000)
-        {
-            for (int retry = 1; retry < maxCount + 1; retry++)
-            {
-                try
-                {
-                    action();
-                }
-                catch (ServerException ex)
-                {
-                    Trace.WriteLine(ex);
-                    if (retry == maxCount) throw;
-                    System.Threading.Thread.Sleep(delay);
-                }
-            }
-        }
+        //public void RetryAction(Action action, int maxCount = 5, int delay = 1000)
+        //{
+        //    for (int retry = 1; retry < maxCount + 1; retry++)
+        //    {
+        //        try
+        //        {
+        //            action();
+        //        }
+        //        catch (ServerException ex)
+        //        {
+        //            Trace.WriteLine(ex);
+        //            if (retry == maxCount) throw;
+        //            System.Threading.Thread.Sleep(delay);
+        //        }
+        //    }
+        //}
 
         protected string GetParentFolder(string path)
         {
             return path.Substring(0, path.Length - path.Split('/').Last().Length);
         }
-
-        protected SPSiteItem FindSPSite()
-        {
-            if (spsite != null) return spsite;
-            var parent = Parent;
-            while (parent != null)
-            {
-                if (parent is SPSiteItem)
-                {
-                    spsite = (SPSiteItem)parent;
-                    return spsite;
-                }
-                parent = parent.Parent;
-            }
-            throw new InvalidOperationException();
-        }
-        private SPSiteItem spsite;
-        protected SPDocumentLibraryItem FindDocumentLibrary()
-        {
-            if (docLib != null) return docLib;
-            var parent = Parent;
-            while (parent != null)
-            {
-                if (parent is SPDocumentLibraryItem)
-                {
-                    docLib = (SPDocumentLibraryItem)parent;
-                    return docLib;
-                }
-                parent = parent.Parent;
-            }
-            throw new InvalidOperationException();
-        }
-
-        private SPDocumentLibraryItem docLib;
 
     }
 }

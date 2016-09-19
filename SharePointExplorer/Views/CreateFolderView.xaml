@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SharePointExplorer.Views"
-            xmlns:properties="clr-namespace:SharePointExplorer.Properties"
+            xmlns:properties="clr-namespace:SharePointExplorer.Properties;assembly=SharePointExplorer.Core"
              FontSize="16"
              Margin="5 5 5 5"             mc:Ignorable="d" 
              Height="80" Width="300">

@@ -20,11 +20,6 @@ namespace SharePointExplorer
     {
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            DefaultTraceListener drl;
-            drl = (DefaultTraceListener)Trace.Listeners["Default"];
-            //LogFileNameを変更する
-            drl.LogFileName = Utils.ApplicationFolder + "\\SharePointExplorer_" + DateTime.Now.ToString("yyyyMMdd") + ".log";
-
             if (!Directory.Exists(Utils.ApplicationFolder)) Directory.CreateDirectory(Utils.ApplicationFolder);
             foreach (var file in Directory.GetFiles(Utils.ApplicationFolder, "SharePointExplorer_*.log"))
             {
@@ -35,10 +30,17 @@ namespace SharePointExplorer
                     if (d < DateTime.Today.AddDays(-60)) File.Delete(file);
                 }
             }
+
+            DefaultTraceListener drl;
+            drl = (DefaultTraceListener)Trace.Listeners["Default"];
+            //LogFileNameを変更する
+            drl.LogFileName = Utils.ApplicationFolder + "\\SharePointExplorer_" + DateTime.Now.ToString("yyyyMMdd") + ".log";
             Trace.WriteLine("*************************************");
             Trace.WriteLine(DateTime.Now.ToString());
             Trace.WriteLine(Environment.MachineName);
             Trace.WriteLine("*************************************");
+
+
         }
     }
 }

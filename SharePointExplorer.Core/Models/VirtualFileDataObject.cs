@@ -811,6 +811,8 @@ namespace SharePointExplorer.Models
             {
                 NativeMethods.DoDragDrop(dataObject, new DropSource(), (int)allowedEffects, finalEffect);
             }
+            catch (NotSupportedException)
+            { }
             finally
             {
                 var virtualFileDataObject = dataObject as VirtualFileDataObject;
@@ -867,7 +869,7 @@ namespace SharePointExplorer.Models
         /// <summary>
         /// Provides access to Win32-level constants, structures, and functions.
         /// </summary>
-        private static class NativeMethods
+        internal static class NativeMethods
         {
             public const int DRAGDROP_S_DROP = 0x00040100;
             public const int DRAGDROP_S_CANCEL = 0x00040101;

@@ -58,7 +58,7 @@ namespace SharePointExplorer.Models
             _list = list;
         }
 
-        protected override async Task LoadChildren()
+        protected override async Task LoadChildren(int depth=1)
         {
             Items.Clear();
 

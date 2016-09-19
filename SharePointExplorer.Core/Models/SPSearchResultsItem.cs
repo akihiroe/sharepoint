@@ -1,6 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.Search.Query;
-using SharePointExplorer.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,7 +11,7 @@ using ViewMaker.Core;
 
 namespace SharePointExplorer.Models
 {
-    [View(typeof(SPSearchResultsView))]
+    [View("SharePointExplorer.Views.SPSearchResultsView,SharePointExplorer")]
     public class SPSearchResultsItem : SPTreeItem
     {
         private ExplorerVM explorer;
@@ -54,7 +53,7 @@ namespace SharePointExplorer.Models
             this.explorer = parent;
         }
 
-        protected override Task LoadChildren()
+        protected override Task LoadChildren(int depth=1)
         {
             return Task.Delay(0);
         }

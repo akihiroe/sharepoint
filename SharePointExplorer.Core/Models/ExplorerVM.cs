@@ -51,6 +51,12 @@ namespace SharePointExplorer.Models
 
         public ExplorerVM()
         {
+            AppViewModel.TopViewModelInstance = this;
+            Children = new ObservableCollection<SPTreeItem>();
+        }
+
+        public void LoadSettings()
+        {
             if (string.IsNullOrEmpty(ExplorerSettings.Instance.LicenseKey))
             {
                 if (!ExplorerSettings.Instance.StartDate.HasValue)
@@ -59,8 +65,6 @@ namespace SharePointExplorer.Models
                     ExplorerSettings.Instance.Save();
                 }
             }
-            AppViewModel.TopViewModelInstance = this;
-            Children = new ObservableCollection<SPTreeItem>();
             foreach (var cnct in ExplorerSettings.Instance.Connections.ToArray())
             {
                 try
@@ -73,8 +77,6 @@ namespace SharePointExplorer.Models
                     Trace.WriteLine(ex);
                 }
             }
-            UpdateJumpList();
-            
         }
 
         public void Connect(string siteUrl, string user, string pass, bool isNew, string oldSiteUrl)
@@ -100,8 +102,6 @@ namespace SharePointExplorer.Models
                 Children.Add(root);
                 ExplorerSettings.Instance.Connections.Add(new ConnectionInfo { SiteUrl = siteUrl, User = user, Password = Utils.EncryptedPassword(pass) });
             }
-
-            ExplorerSettings.Instance.Save();
         }
 
         public ICommand ConnectCommand { get { return CreateCommand(Connect); } }

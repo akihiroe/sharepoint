@@ -1,5 +1,4 @@
 ﻿using Microsoft.SharePoint.Client;
-using SharePointExplorer.Views;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +12,7 @@ using ViewMaker.Core;
 
 namespace SharePointExplorer.Models
 {
-    [View(typeof(FolderPanelView))]
+    [View("SharePointExplorer.Views.FolderPanelView,SharePointExplorer")]
     public class SPDocumentLibraryItem : SPFolderItem
     {
         public override string Name
@@ -45,7 +44,9 @@ namespace SharePointExplorer.Models
         {
             get
             {
-                return Web.Url + "/" + List.Title;
+                var uri = new Uri(Context.Url);
+                var root = uri.Scheme + "://" + uri.Host;
+                return root + List.RootFolder.ServerRelativeUrl;
             }
         }
 
@@ -70,12 +71,6 @@ namespace SharePointExplorer.Models
                 return false;
             }
         }
-
-        internal SPFolderItem _backupFolder;
-        internal SemaphoreSlim _throttler;
-        internal List<Task> _allTasks;
-        internal bool _ignoreError;
-        internal bool _autoAdjustRename;
 
     }
 }

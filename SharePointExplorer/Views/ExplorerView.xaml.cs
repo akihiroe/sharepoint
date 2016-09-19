@@ -27,6 +27,7 @@ namespace SharePointExplorer.Views
         {
             InitializeComponent();
             vm = new ExplorerVM();
+            vm.LoadSettings();
             this.DataContext = vm;
             vm.PropertyChanged += Vm_PropertyChanged;
             vm.ViewCommandNotified += Vm_ViewCommandNotified;

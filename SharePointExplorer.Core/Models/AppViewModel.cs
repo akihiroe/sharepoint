@@ -361,5 +361,20 @@ namespace SharePointExplorer.Models
             }
 
         }
+
+        protected virtual string ShowSaveDialog()
+        {
+            var dialog = new System.Windows.Forms.SaveFileDialog();
+            var result = dialog.ShowDialog();
+            if (result != System.Windows.Forms.DialogResult.OK)
+            {
+                return null;
+            }
+            else
+            {
+                return dialog.FileName;
+            }
+
+        }
     }
 }

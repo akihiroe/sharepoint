@@ -60,7 +60,7 @@ namespace SharePointExplorer.Models
             _context = context;
         }
 
-        protected override async Task LoadChildren()
+        protected override async Task LoadChildren(int depth=1)
         {
             Items.Clear();
             LoadChildren(Topic["FileRef"].ToString());

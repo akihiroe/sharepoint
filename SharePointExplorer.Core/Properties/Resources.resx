@@ -330,6 +330,9 @@
   <data name="MsgUser" xml:space="preserve">
     <value>User</value>
   </data>
+  <data name="MsgConfirmSaveLog" xml:space="preserve">
+    <value>Do you want to save the run log?</value>
+  </data>
   <data name="MsgTryUpload" xml:space="preserve">
     <value>Upload (auto mode)</value>
   </data>

@@ -1,5 +1,4 @@
 ﻿using Microsoft.SharePoint.Client;
-using SharePointExplorer.Views;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +12,7 @@ using ViewMaker.Core;
 
 namespace SharePointExplorer.Models
 {
-    [View(typeof(SPSiteView))]
+    [View("SharePointExplorer.Views.SPSiteView,SharePointExplorer")]
     public class SPSubSiteItem : SPTreeItem, IDisposable
     {
         private string userScriptName = "SharepointExplorerUserScript";
@@ -35,7 +34,7 @@ namespace SharePointExplorer.Models
         }
 
 
-        protected override async Task LoadChildren()
+        protected override async Task LoadChildren(int depth=1)
         {
             ListCollection lists = null;
             WebCollection webs = null;

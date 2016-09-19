@@ -1,5 +1,4 @@
-﻿using SharePointExplorer.Views;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +8,7 @@ using ViewMaker.Core;
 
 namespace SharePointExplorer.Models
 {
-    [View(typeof(CreateFolderView))]
+    [View("SharePointExplorer.Views.CreateFolderView,SharePointExplorer")]
     public class CreateFolderVM : AppViewModel
     {
         public string NewFolderName { get; set; }

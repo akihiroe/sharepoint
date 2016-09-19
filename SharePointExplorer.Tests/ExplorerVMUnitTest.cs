@@ -20,6 +20,7 @@ namespace SharePointExplorer.Tests
         {
             AppViewModel.ExecuteActionAsyncMode = false;
             testVm = new ExplorerVM();
+            testVm.LoadSettings();
             testSite = (SPSiteItem)testVm.Children.Where(x => x.Name.Trim('/') == TestConfig.SiteUrl.Trim('/')).First();
             testSite.EnsureChildren().Wait();
             testLib = (SPDocumentLibraryItem)testSite.Children.Where(x => x.Name == "Shared Documents").First();

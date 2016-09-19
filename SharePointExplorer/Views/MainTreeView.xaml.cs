@@ -84,6 +84,10 @@ namespace SharePointExplorer.Views
                     files = (string[])bin.Deserialize(st);
                     vm.MoveFolderCommand.Execute(files);
                 }
+                else if (folder != null && folder != vm.SPUrl)
+                {
+                    vm.MoveFolderCommand.Execute(new string[] { folder });
+                }
                 else
                 {
                     throw new NotSupportedException();
@@ -146,7 +150,13 @@ namespace SharePointExplorer.Views
                     var item = Folders.SelectedItem as SPFolderItem;
                     if (item != null)
                     {
-                        DragDrop.DoDragDrop(sender as DependencyObject, item.SPUrl, DragDropEffects.Move);
+                        try
+                        {
+                            DragDrop.DoDragDrop(sender as DependencyObject, item.SPUrl, DragDropEffects.Move);
+                        }
+                        catch (NotSupportedException)
+                        {
+                        }
                     }
                     _isFoldersButtonDown = false;
                 }

@@ -1,5 +1,4 @@
-﻿using SharePointExplorer.Views;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +9,7 @@ using ViewMaker.Core;
 
 namespace SharePointExplorer.Models
 {
-    [View(typeof(ConnectView))]
+    [View("SharePointExplorer.Views.ConnectView,SharePointExplorer")]
     public class ConnectVM : AppViewModel
     {
         public string SiteUrl { get; set; }
@@ -38,6 +37,7 @@ namespace SharePointExplorer.Models
                 {
                     var passwordBox = x as PasswordBox;
                     explorer.Connect(SiteUrl, User, passwordBox.Password, IsNew, OldSiteUrl);
+                    ExplorerSettings.Instance.Save();
                     this.ExecuteViewCommand(ViewCommands.Close);
                 });
             }

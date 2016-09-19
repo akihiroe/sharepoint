@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,10 +58,16 @@ namespace SharePointExplorer.Models
                 Children.Clear();
                 await LoadChildren();
                 OnPropertyChanged("Children");
+                Children.CollectionChanged += Children_CollectionChanged;
             }
         }
 
-        protected virtual async Task LoadChildren()
+        private void Children_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            //Debug.WriteLine("Changed Child" + Name);
+        }
+
+        protected virtual async Task LoadChildren(int depth = 1)
         {
             await Task.Delay(0);
         }

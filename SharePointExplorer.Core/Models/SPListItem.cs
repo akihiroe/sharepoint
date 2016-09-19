@@ -1,5 +1,4 @@
 ﻿using Microsoft.SharePoint.Client;
-using SharePointExplorer.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;

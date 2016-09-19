@@ -160,5 +160,22 @@ namespace SharePointExplorer.Tests
             testFolder.MoveFolderCommand.Execute(new string[] { testFolder2.SPUrl + "/MoveTest" });
             Assert.AreEqual("", testFolder.Message);
         }
+
+        [TestMethod]
+        public void BackupTest()
+        {
+            var backupFolder = (SPFolderItem)testVm.FindItemByUrl("https://proaxiaconsulting-my.sharepoint.com/personal/akihiroe_ehara_proaxiaconsulting_onmicrosoft_com/Documents/Backup/Test", true).Result;
+            //testSite = (SPSiteItem)testVm.Children.Where(x => x.Name.Trim('/') == "https://proaxiaconsulting-my.sharepoint.com/personal/akihiroe_ehara_proaxiaconsulting_onmicrosoft_com").First();
+            //testSite.EnsureChildren().Wait();
+            //testLib = (SPDocumentLibraryItem)testSite.Children.Where(x => x.Name == "ドキュメント").First();
+            //testLib.EnsureChildren().Wait();
+            //testFolder = (Models.SPFolderItem)testLib.Children.Where(x => x.Name == "Backup").First();
+            //testFolder.EnsureChildren().Wait();
+            //var backupFolder = (Models.SPFolderItem)testFolder.Children.Where(x => x.Name == "Test").First();
+
+            backupFolder.TryUploadFolderCommand.Execute(System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            Assert.AreEqual("", testVm.Message);
+        }
+
     }
 }
