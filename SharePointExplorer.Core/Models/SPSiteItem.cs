@@ -72,13 +72,22 @@ namespace SharePointExplorer.Models
 
         }
 
-        public ClientContext GenerateContext()
+        public Tuple<ClientContext, Web> GenerateContext(string webPath)
         {
             var ret = CreateContext(siteUrl, User, Password);
             var web = ret.Web;
             ret.Load(web);
             ret.ExecuteQueryWithIncrementalRetry();
-            return ret;
+            var webName = "/";
+            foreach (var webNameWork in webPath.Trim('/').Split('/'))
+            {
+                if (string.IsNullOrEmpty(webNameWork)) continue;
+                webName = webName.TrimEnd('/') + "/" + webNameWork;
+                ret.Load(web.Webs);
+                ret.ExecuteQueryWithIncrementalRetry();
+                web = web.Webs.FirstOrDefault(x => x.ServerRelativeUrl == webName);
+            }
+            return new Tuple<ClientContext, Web>(ret,web);
         }
 
 

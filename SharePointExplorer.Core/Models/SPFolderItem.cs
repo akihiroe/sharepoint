@@ -130,26 +130,50 @@ namespace SharePointExplorer.Models
         {
             Children.Clear();
             await Task.Run(() => {
-                if (depth <= 1)
-                    Context.Load(Folder,
-                        x => x.Name,
-                        x => x.ServerRelativeUrl,
-                        x => x.Files.Include(
-                            y => y.UniqueId,
-                            y => y.Name,
-                            y => y.ServerRelativeUrl,
-                            y => y.TimeLastModified,
-                            y => y.ModifiedBy,
-                            y => y.CheckOutType,
-                            y => y.CheckedOutByUser,
-                            y => y.Length
-                        ),
-                        x => x.Folders.Include(
-                            y => y.Name,
-                            y => y.ServerRelativeUrl
-                         )
-                    );
-                Context.ExecuteQueryWithIncrementalRetry();
+                try
+                {
+                    if (depth <= 1)
+                        Context.Load(Folder,
+                            x => x.Name,
+                            x => x.ServerRelativeUrl,
+                            x => x.Files.Include(
+                                y => y.UniqueId,
+                                y => y.Name,
+                                y => y.ServerRelativeUrl,
+                                y => y.TimeLastModified,
+                                y => y.ModifiedBy,
+                                y => y.CheckOutType,
+                                y => y.CheckedOutByUser,
+                                y => y.Length
+                            ),
+                            x => x.Folders.Include(
+                                y => y.Name,
+                                y => y.ServerRelativeUrl
+                             )
+                        );
+                    Context.ExecuteQueryWithIncrementalRetry();
+                }
+                catch
+                {
+                    if (depth <= 1)
+                        Context.Load(Folder,
+                            x => x.Name,
+                            x => x.ServerRelativeUrl,
+                            x => x.Files.Include(
+                                y => y.UniqueId,
+                                y => y.Name,
+                                y => y.ServerRelativeUrl,
+                                y => y.TimeLastModified,
+                                y => y.CheckOutType,
+                                y => y.Length
+                            ),
+                            x => x.Folders.Include(
+                                y => y.Name,
+                                y => y.ServerRelativeUrl
+                             )
+                        );
+                    Context.ExecuteQueryWithIncrementalRetry();
+                }
                 //{
                 //}
                 //if (depth >= 2)
@@ -352,9 +376,11 @@ namespace SharePointExplorer.Models
                         await Task.Delay(10000);
                     }
                     spSite = spSite ?? FindSPSite();
-                    using (var context = spSite.GenerateContext())
+                    var contextAndWeb = spSite.GenerateContext(this.Web.ServerRelativeUrl);
+                    try
                     {
-                        var newFile = new SPFileItem(this, context.Web, context, null);
+                        
+                        var newFile = new SPFileItem(this, contextAndWeb.Item2, contextAndWeb.Item1, null);
                         lock (newFiles)
                         {
                             newFiles.Add(newFile);
@@ -389,6 +415,10 @@ namespace SharePointExplorer.Models
                             }
                         }
 
+                    }
+                    finally
+                    {
+                        if (contextAndWeb != null) contextAndWeb.Item1.Dispose();
                     }
                 }
                 catch (OperationCanceledException)
