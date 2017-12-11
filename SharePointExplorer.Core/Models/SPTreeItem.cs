@@ -41,6 +41,12 @@ namespace SharePointExplorer.Models
 
         public abstract string Path { get; }
 
+        public virtual SecurableObject SecurableItem
+        {
+            get { return null; }
+        }
+
+
         public override bool IsBusy
         {
             get { return  RootVM.IsBusy; }
@@ -91,6 +97,30 @@ namespace SharePointExplorer.Models
         public ICommand EditConnectionCommand { get { return CreateCommand(EditConnection); } }
         protected virtual void EditConnection(object obj)
         {
+        }
+
+        public ICommand ShowAccessRight {
+            get
+            {
+                return CreateCommand(() =>
+                {
+                    if (SecurableItem == null || !IsEnabled) return;
+
+                    ExecuteActionAsync(this.EnsureChildren(),
+                    (t) => {
+                        var vm = new AccessRightVM(this.Context, this.Web, SecurableItem);
+                        ShowDialog(vm, this.Path);
+                    },null,false,false);
+                }); 
+            }
+        }
+
+        public bool CanShowAccessRight
+        {
+            get
+            {
+                return (SecurableItem != null);
+            }
         }
 
         public ICommand ClearCacheCommand { get { return CreateCommand(ClearCache); } }

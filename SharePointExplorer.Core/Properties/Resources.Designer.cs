@@ -61,6 +61,15 @@ namespace SharePointExplorer.Properties {
         }
         
         /// <summary>
+        ///   Access right に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgAccessRight {
+            get {
+                return ResourceManager.GetString("MsgAccessRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   {0} Do you want to continue processing ? に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string MsgAppErrorDisplayAndConfirm {
@@ -237,6 +246,15 @@ namespace SharePointExplorer.Properties {
         public static string MsgCopy {
             get {
                 return ResourceManager.GetString("MsgCopy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Do you want to copy the inherit roles. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string MsgCopyRole {
+            get {
+                return ResourceManager.GetString("MsgCopyRole", resourceCulture);
             }
         }
         

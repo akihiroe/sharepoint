@@ -362,9 +362,25 @@ namespace SharePointExplorer.Models
 
         }
 
-        protected virtual string ShowSaveDialog()
+        protected virtual string ShowSaveDialog(string filter)
         {
             var dialog = new System.Windows.Forms.SaveFileDialog();
+            dialog.Filter = filter;
+            var result = dialog.ShowDialog();
+            if (result != System.Windows.Forms.DialogResult.OK)
+            {
+                return null;
+            }
+            else
+            {
+                return dialog.FileName;
+            }
+
+        }
+        protected virtual string ShowOpenDialog(string filter)
+        {
+            var dialog = new System.Windows.Forms.OpenFileDialog();
+            dialog.Filter = filter;
             var result = dialog.ShowDialog();
             if (result != System.Windows.Forms.DialogResult.OK)
             {

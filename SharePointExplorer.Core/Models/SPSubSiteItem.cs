@@ -46,6 +46,7 @@ namespace SharePointExplorer.Models
                 lists = web.Lists;
                 Context.Load(lists, x => x.Include(
                     y => y.IsApplicationList,
+                    y => y.Id,
                     y => y.Title,
                     y => y.Hidden,
                     y => y.BaseType,
@@ -56,13 +57,14 @@ namespace SharePointExplorer.Models
                 webs = web.Webs;
                 Context.Load(webs, x => x.Include(
                     y => y.Title,
+                    y => y.Id,
                     y => y.Url,
                     y => y.RootFolder.Name,
                     y => y.RootFolder.ServerRelativeUrl));
 
                 Context.ExecuteQueryWithIncrementalRetry();
             });
-            foreach (var list in lists.Where(x => !x.IsApplicationList && !x.Hidden && x.Title != "Form Templates" && x.Title != "Customized Reports" && x.Title != "Site Collection Documents" && x.Title != "Site Collection Images" && x.Title != "Images"))
+            foreach (var list in lists.Where(x => !x.IsApplicationList))
             {
                 if (list.BaseType == Microsoft.SharePoint.Client.BaseType.DocumentLibrary)
                 {
@@ -72,10 +74,10 @@ namespace SharePointExplorer.Models
                 //{
                 //    Children.Add(new SPDocumentLibraryItem(this, Context, list));
                 //}
-                //if (list.BaseType == Microsoft.SharePoint.Client.BaseType.GenericList)
-                //{
-                //    Children.Add(new SPDiscussionBoardItem(this, Context, list));
-                //}
+                if (list.BaseType == Microsoft.SharePoint.Client.BaseType.GenericList)
+                {
+                    Children.Add(new SPGenericListItem(this, Web, Context, list));
+                }
             }
             foreach (var web in webs)
             {

@@ -170,6 +170,46 @@ namespace SharePointExplorer.Models
             this._file = file;
         }
 
+        public override SecurableObject SecurableItem
+        {
+            get
+            {
+                return this.File.ListItemAllFields;
+            }
+        }
+
+        public bool HasUniqueRoleAssignment
+        {
+            get { return this.File.ListItemAllFields.HasUniqueRoleAssignments; }
+        }
+
+        public string AccessRight
+        {
+            get
+            {
+                return HasUniqueRoleAssignment.ToString();
+                //if (this.File.ListItemAllFields != null && this.File.ListItemAllFields.RoleAssignments != null)
+                //{
+                //    var access = string.Join(" | ", this.File.ListItemAllFields.RoleAssignments
+                //            .Select(x => x.Member.Title + ":" + string.Join(",", x.RoleDefinitionBindings.Select(z => z.Name))));
+
+                //    if (string.IsNullOrEmpty(access)) access = "none";
+                //    if (this.File.ListItemAllFields.HasUniqueRoleAssignments)
+                //    {
+                //        return access;
+                //    }
+                //    else
+                //    {
+                //        return "";
+                //    }
+                //}
+                //else
+                //{
+                //    return "n/a";
+                //}
+            }
+        }
+
 
         public ICommand OpenCommand
         {
@@ -549,6 +589,7 @@ namespace SharePointExplorer.Models
                     var direItem = Web.GetFolderByServerRelativeUrl(GetParentFolder(serverPath));
                     uploadFile = direItem.Files.Add(fileInfo);
                     uploadFile.ListItemAllFields["Modified"] = System.IO.File.GetLastWriteTimeUtc(fileName);
+                    uploadFile.ListItemAllFields["Author"] = this.Context.Web.CurrentUser;
                     uploadFile.ListItemAllFields.Update();
                     Context.ExecuteQuery();
                 }
@@ -698,7 +739,8 @@ namespace SharePointExplorer.Models
                     {
                         throw new OperationCanceledException();
                     }
-                    await newParent.UploadFile(new Delimon.Win32.IO.FileInfo(tempFile), tempFile, newParent.Path + "/" + Name);
+                    await newParent.UploadFile(new System.IO.FileInfo(tempFile), tempFile, newParent.Path + "/" + Name);
+                    //await newParent.UploadFile(new Delimon.Win32.IO.FileInfo(tempFile), tempFile, newParent.Path + "/" + Name);
                 }
                 finally
                 {

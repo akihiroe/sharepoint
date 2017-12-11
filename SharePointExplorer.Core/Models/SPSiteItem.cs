@@ -84,8 +84,9 @@ namespace SharePointExplorer.Models
                 if (string.IsNullOrEmpty(webNameWork)) continue;
                 webName = webName.TrimEnd('/') + "/" + webNameWork;
                 ret.Load(web.Webs);
-                ret.ExecuteQueryWithIncrementalRetry();
-                web = web.Webs.FirstOrDefault(x => x.ServerRelativeUrl == webName);
+                ret.ExecuteQueryWithIncrementalRetry();                
+                var webTmp = web.Webs.FirstOrDefault(x => x.ServerRelativeUrl == webName);
+                if (webTmp == null) break;
             }
             return new Tuple<ClientContext, Web>(ret,web);
         }
@@ -107,14 +108,22 @@ namespace SharePointExplorer.Models
             WebCollection webs = null;
             await Task.Run(() => {
                 var web = Context.Web;
+                var site = Context.Site;
                 _web = web;
                 Context.Load(web);
+                Context.Load(web,
+                    y => y.Title,
+                    y => y.Url,
+                    y => y.RootFolder.Name,
+                    y => y.RootFolder.ServerRelativeUrl);
+                Context.Load(site);
                 Context.ExecuteQueryWithIncrementalRetry();
 
                 lists = web.Lists;
                 Context.Load(lists, x => x.Include(
                     y => y.IsApplicationList,
                     y => y.Title,
+                    y => y.Id,
                     y => y.Hidden,
                     y => y.BaseType,
                     y => y.DefaultViewUrl,
@@ -142,10 +151,10 @@ namespace SharePointExplorer.Models
                 //{
                 //    Children.Add(new SPDocumentLibraryItem(this, Context, list));
                 //}
-                //if (list.BaseType == Microsoft.SharePoint.Client.BaseType.GenericList)
-                //{
-                //    Children.Add(new SPDiscussionBoardItem(this, Context, list));
-                //}
+                if (list.BaseType == Microsoft.SharePoint.Client.BaseType.GenericList)
+                {
+                    Children.Add(new SPGenericListItem(this, Web, Context, list));
+                }
             }
             foreach (var web in webs)
             {

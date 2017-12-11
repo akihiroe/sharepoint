@@ -124,7 +124,7 @@ namespace SharePointExplorer.Models
             {
                 await content.EnsureChildren();
                 content.IsExpanded = true;
-                this.CurrentContent = ViewUtil.BuildContent(content, false);
+                this.CurrentContent = ViewUtil.BuildContent(content, true);
             }
             else
             {

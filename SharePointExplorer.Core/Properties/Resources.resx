@@ -336,4 +336,10 @@
   <data name="MsgTryUpload" xml:space="preserve">
     <value>Upload (auto mode)</value>
   </data>
+  <data name="MsgAccessRight" xml:space="preserve">
+    <value>Access right</value>
+  </data>
+  <data name="MsgCopyRole" xml:space="preserve">
+    <value>Do you want to copy the inherit roles.</value>
+  </data>
 </root>

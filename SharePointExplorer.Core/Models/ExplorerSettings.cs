@@ -37,6 +37,7 @@ namespace SharePointExplorer.Models
         public int SizeWidth { get; set; }
         public int OwnerWidth { get; set; }
         public int CheckedOutWidth { get; set; }
+        public int AccessRightWidth { get; set; }
         public string DateFormat { get; set; }
 
         public ExplorerSettings()
@@ -47,6 +48,7 @@ namespace SharePointExplorer.Models
             SizeWidth = 100;
             OwnerWidth = 150;
             CheckedOutWidth = 150;
+            AccessRightWidth = 150;
             DateFormat = "";
         }
 

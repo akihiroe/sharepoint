@@ -336,4 +336,10 @@
   <data name="MsgConfirmSaveLog" xml:space="preserve">
     <value>実行ログを保存しますか</value>
   </data>
+  <data name="MsgAccessRight" xml:space="preserve">
+    <value>アクセス権</value>
+  </data>
+  <data name="MsgCopyRole" xml:space="preserve">
+    <value>継承したロールをコピーしますか？</value>
+  </data>
 </root>

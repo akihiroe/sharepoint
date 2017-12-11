@@ -163,6 +163,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Views\AccessRightView.xaml.cs">
+      <DependentUpon>AccessRightView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\AppListView.cs" />
     <Compile Include="Views\CreateFolderView.xaml.cs">
       <DependentUpon>CreateFolderView.xaml</DependentUpon>
@@ -190,6 +193,9 @@
     <Compile Include="Views\ScriptEditorView.xaml.cs">
       <DependentUpon>ScriptEditorView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SPGenericListItemView.xaml.cs">
+      <DependentUpon>SPGenericListItemView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SPSearchResultsView.xaml.cs">
       <DependentUpon>SPSearchResultsView.xaml</DependentUpon>
     </Compile>
@@ -197,6 +203,10 @@
       <DependentUpon>SPSiteView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ViewHelper.cs" />
+    <Page Include="Views\AccessRightView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ConnectView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -222,6 +232,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ScriptEditorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SPGenericListItemView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -299,6 +313,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Resource Include="Images\sharepointlist.png" />
     <Content Include="SQLite.Interop.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

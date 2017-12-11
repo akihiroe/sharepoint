@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using Delimon.Win32.IO;
-//using System.IO;
+//using Delimon.Win32.IO;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
@@ -63,6 +63,46 @@ namespace SharePointExplorer.Models
                 var uri = new Uri(Context.Url);
                 var root = uri.Scheme + "://" + uri.Host;
                 return root + Folder.ServerRelativeUrl;
+            }
+        }
+
+        public override SecurableObject SecurableItem
+        {
+            get
+            {
+                return this.Folder.ListItemAllFields;
+            }
+        }
+
+        public bool HasUniqueRoleAssignment
+        {
+            get { return this.Folder.ListItemAllFields.HasUniqueRoleAssignments; }
+        }
+
+        public string AccessRight
+        {
+            get
+            {
+                return HasUniqueRoleAssignment.ToString();
+                //if (this.Folder.ListItemAllFields != null && this.Folder.ListItemAllFields.RoleAssignments != null)
+                //{
+                //    var access = string.Join(" | ", this.Folder.ListItemAllFields.RoleAssignments
+                //            .Select(x => x.Member.Title + ":" + string.Join(",", x.RoleDefinitionBindings.Select(z => z.Name))));
+
+                //    if (string.IsNullOrEmpty(access)) access = "none";
+                //    if (this.Folder.ListItemAllFields.HasUniqueRoleAssignments)
+                //    {
+                //        return "";
+                //    }
+                //    else
+                //    {
+                //        return access;
+                //    }
+                //}
+                //else
+                //{
+                //    return "n/a";
+                //}
             }
         }
 
@@ -133,9 +173,11 @@ namespace SharePointExplorer.Models
                 try
                 {
                     if (depth <= 1)
+                    {
                         Context.Load(Folder,
                             x => x.Name,
                             x => x.ServerRelativeUrl,
+                            x => x.ListItemAllFields.HasUniqueRoleAssignments,
                             x => x.Files.Include(
                                 y => y.UniqueId,
                                 y => y.Name,
@@ -144,35 +186,124 @@ namespace SharePointExplorer.Models
                                 y => y.ModifiedBy,
                                 y => y.CheckOutType,
                                 y => y.CheckedOutByUser,
-                                y => y.Length
+                                y => y.Length,
+                                y => y.ListItemAllFields.HasUniqueRoleAssignments
                             ),
                             x => x.Folders.Include(
                                 y => y.Name,
-                                y => y.ServerRelativeUrl
+                                y => y.ServerRelativeUrl,
+                                y => y.ListItemAllFields.HasUniqueRoleAssignments
                              )
                         );
-                    Context.ExecuteQueryWithIncrementalRetry();
+                        Context.ExecuteQueryWithIncrementalRetry();
+                        //if (Folder.ListItemAllFields != null)
+                        //{
+                        //    var item = Folder.ListItemAllFields;
+                        //    Context.Load(item, 
+                        //        x =>x.RoleAssignments.Include(
+                        //            y=>y.Member.Title,
+                        //            y=>y.Member.LoginName,
+                        //            y=>y.RoleDefinitionBindings)
+                        //       );
+                        //}
+                        //foreach (var file in Folder.Files)
+                        //{
+                        //    if (file.ListItemAllFields != null)
+                        //    {
+                        //        var item = file.ListItemAllFields;
+                        //        Context.Load(item,
+                        //           x => x.HasUniqueRoleAssignments,
+                        //            x => x.RoleAssignments.Include(
+                        //                y => y.Member.Title,
+                        //                y => y.Member.LoginName,
+                        //                y => y.RoleDefinitionBindings)
+                        //           );
+                        //    }
+                        //}
+                        //foreach (var subFolder in Folder.Folders)
+                        //{
+                        //    if (subFolder.ListItemAllFields != null)
+                        //    {
+                        //        var item = subFolder.ListItemAllFields;
+                        //        Context.Load(item,
+                        //            x => x.HasUniqueRoleAssignments,
+                        //            x => x.RoleAssignments.Include(
+                        //                    y => y.Member.Title,
+                        //                y => y.Member.LoginName,
+                        //                y => y.RoleDefinitionBindings)
+                        //           );
+                        //    }
+                        //}
+                        //Context.ExecuteQueryWithIncrementalRetry();
+
+                    }
+
                 }
                 catch
                 {
                     if (depth <= 1)
+                    {
                         Context.Load(Folder,
                             x => x.Name,
                             x => x.ServerRelativeUrl,
+                            x => x.ListItemAllFields.HasUniqueRoleAssignments,
                             x => x.Files.Include(
                                 y => y.UniqueId,
                                 y => y.Name,
                                 y => y.ServerRelativeUrl,
                                 y => y.TimeLastModified,
                                 y => y.CheckOutType,
-                                y => y.Length
+                                y => y.Length,
+                                y => y.ListItemAllFields.HasUniqueRoleAssignments
                             ),
                             x => x.Folders.Include(
                                 y => y.Name,
-                                y => y.ServerRelativeUrl
+                                y => y.ServerRelativeUrl,
+                                y => y.ListItemAllFields.HasUniqueRoleAssignments
                              )
                         );
-                    Context.ExecuteQueryWithIncrementalRetry();
+                        Context.ExecuteQueryWithIncrementalRetry();
+                        //if (Folder.ListItemAllFields != null)
+                        //{
+                        //    var item = Folder.ListItemAllFields;
+                        //    Context.Load(item,
+                        //        x => x.HasUniqueRoleAssignments,
+                        //        x => x.RoleAssignments.Include(
+                        //            y => y.Member.Title,
+                        //            y => y.Member.LoginName,
+                        //            y => y.RoleDefinitionBindings)
+                        //       );
+                        //}
+                        //foreach (var file in Folder.Files)
+                        //{
+                        //    if (file.ListItemAllFields != null)
+                        //    {
+                        //        var item = file.ListItemAllFields;
+                        //        Context.Load(item,
+                        //            x => x.HasUniqueRoleAssignments,
+                        //            x => x.RoleAssignments.Include(
+                        //                y => y.Member.Title,
+                        //                y => y.Member.LoginName,
+                        //                y => y.RoleDefinitionBindings)
+                        //           );
+                        //    }
+                        //}
+                        //foreach (var subFolder in Folder.Folders)
+                        //{
+                        //    if (subFolder.ListItemAllFields != null)
+                        //    {
+                        //        var item = subFolder.ListItemAllFields;
+                        //        Context.Load(item,
+                        //             x => x.HasUniqueRoleAssignments,
+                        //             x => x.RoleAssignments.Include(
+                        //                y => y.Member.Title,
+                        //                y => y.Member.LoginName,
+                        //                y => y.RoleDefinitionBindings)
+                        //           );
+                        //    }
+                        //}
+                        //Context.ExecuteQueryWithIncrementalRetry();
+                    }
                 }
                 //{
                 //}
@@ -491,7 +622,15 @@ namespace SharePointExplorer.Models
                     if (item.IsSelected)
                     {
                         item.File.Recycle();
-                        Context.ExecuteQuery();
+                        try
+                        {
+                            Context.ExecuteQuery();
+                        }
+                        catch
+                        {
+                            //リトライあり
+                            Context.ExecuteQuery();
+                        }
                         ExecuteUIProc(() => {
                             this.Items.Remove(item);
                         });
@@ -1543,6 +1682,14 @@ namespace SharePointExplorer.Models
                     System.IO.File.Delete(tempFile);
 
                 }
+            }
+        }
+
+        public ICommand ShowItemAccessRight
+        {
+            get
+            {
+                return this.SelectedFile.ShowAccessRight;
             }
         }
     }

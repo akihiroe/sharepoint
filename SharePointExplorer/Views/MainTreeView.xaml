@@ -37,6 +37,7 @@
                     <MenuItem Header="{x:Static properties:Resources.MsgDisconnect}" Command="{Binding Path=DisconnectCommand}" Visibility="{Binding Path=AvailableDisconnect, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     <MenuItem Header="{x:Static properties:Resources.MsgClearCache}" Command="{Binding Path=ClearCacheCommand}" IsEnabled="{Binding Path=AvailableClearCache}" />
                     <Separator/>
+                    <MenuItem Header="{x:Static properties:Resources.MsgAccessRight}" Command="{Binding Path=ShowAccessRight}" IsEnabled="{Binding Path=CanShowAccessRight}" />
                     <!--<MenuItem Header="{x:Static properties:Resources.MsgEditCommonScript}" Command="{Binding Path=EditUserScriptCommand}" Visibility="{Binding Path=AvailableEditUserScript, Converter={StaticResource BooleanToVisibilityConverter}}" />-->
                 </ContextMenu>
             </TreeView.Resources>
